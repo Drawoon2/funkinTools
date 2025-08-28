@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog_ModFolderCreator</class>
+ <widget class="QDialog" name="Dialog_ModFolderCreator">
+  <property name="windowModality">
+   <enum>Qt::WindowModality::NonModal</enum>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>386</width>
+    <height>228</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>ModFolderCreator</string>
+  </property>
+  <layout class="QFormLayout" name="formLayout_2">
+   <property name="rowWrapPolicy">
+    <enum>QFormLayout::RowWrapPolicy::WrapAllRows</enum>
+   </property>
+   <item row="1" column="0">
+    <widget class="QLabel" name="engine_label">
+     <property name="text">
+      <string>Engine:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QComboBox" name="comboBox">
+     <property name="editable">
+      <bool>false</bool>
+     </property>
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <item>
+      <property name="text">
+       <string>PSYCH</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>CODENAME</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>VSLICE</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="engineFolder_label">
+     <property name="text">
+      <string>EngineFolder: </string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QPushButton" name="enginefolder_button">
+     <property name="text">
+      <string>Search Engine Folder</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="2">
+    <widget class="QLabel" name="engineFolderPath_label">
+     <property name="text">
+      <string>D://</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="name_label">
+     <property name="text">
+      <string>Mod Name: </string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QLineEdit" name="name_line_edit">
+     <property name="text">
+      <string>Template</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0" colspan="2">
+    <widget class="QPushButton" name="create_button">
+     <property name="text">
+      <string>Create</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

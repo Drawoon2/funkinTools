@@ -1,5 +1,5 @@
-import Constants, Paths
-
+import Paths, Constants
+from Constants import Engine, BaseData
 
 
 class ModFolder:
@@ -8,20 +8,15 @@ class ModFolder:
         self.name:str = Constants.DEFAULT_MOD_NAME
     def getEngine(self):
         if Paths.exists(self.getPath("pack.json")):
-            return Constants.PSYCH
+            return Engine.PSYCH
         elif Paths.exists(self.getPath("_polymod_meta.json")):
-            return Constants.VSLICE
+            return Engine.VSLICE
         
-        return Constants.CODENAME
+        return Engine.CODENAME
     
     def getEngineName(self):
-        match self.getEngine():
-            case Constants.PSYCH:
-                return "PSYCH"
-            case Constants.CODENAME:
-                return "CODENAME"
-            case Constants.VSLICE:
-                return "VSLICE"
+        return Engine.getName(self.getEngine())
+
     def getEngineFolder(self):
         pass
 
@@ -32,15 +27,23 @@ class ModFolder:
 
     def getPath(self, path) -> str:
         return Paths.join(self.FolderPath, path)
+
+    def saveSong(self):
+        pass
+    def saveCharacter(self):
+        pass
+    def saveStage(self):
+        pass
     def __repr__(self):
         return f"Path={self.FolderPath} / Name={self.name} / Engine={self.getEngineName()}"
+    
     
 class PsychMod(ModFolder):
     def __init__(self, path = ""):
         super().__init__(path)
 
     def getEngine(self):
-        return Constants.PSYCH
+        return Engine.PSYCH
     
     def setModName(self, newName:str):
         super().setModName(newName)
@@ -57,7 +60,7 @@ class PsychMod(ModFolder):
 
         mod = cls(modFolder)
         
-        Paths.saveJson(mod.getPath("pack.json"), Constants.PSYCH_PACK_BASE)
+        Paths.saveJson(mod.getPath("pack.json"), BaseData.PSYCH_PACK_BASE.copy())
         Paths.copyFile(Paths.getAssetPath("pack.png"), mod.getPath("pack.png"))
 
         Paths.createFolder(mod.getPath("data"))
@@ -72,7 +75,7 @@ class CodenameMod(ModFolder):
         super().__init__(path)
 
     def getEngine(self):
-        return Constants.CODENAME
+        return Engine.CODENAME
     @classmethod
     def generate(cls, engineFolder:str):
         modFolder = Paths.join(engineFolder, f"mods/{Constants.DEFAULT_MOD_NAME}")
@@ -93,7 +96,7 @@ class VsliceMod(ModFolder):
         super().__init__(path)
 
     def getEngine(self):
-        return Constants.VSLICE
+        return Engine.VSLICE
     @classmethod
     def generate(cls, engineFolder:str):
         modFolder = Paths.join(engineFolder, f"mods/{Constants.DEFAULT_MOD_NAME}")
@@ -103,7 +106,7 @@ class VsliceMod(ModFolder):
 
         mod = cls(modFolder)
         
-        Paths.saveJson(mod.getPath("_polymod_meta.json"), Constants.VSLICE_POLYMOD_META)
+        Paths.saveJson(mod.getPath("_polymod_meta.json"), BaseData.VSLICE_POLYMOD_META.copy())
 
         Paths.createFolder(mod.getPath("data"))
         Paths.createFolder(mod.getPath("images"))

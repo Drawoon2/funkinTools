@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QMainWindow
-from ModFolder import ModFolder
+from Funkin.ModFolder import ModFolder
 import UI, Dialogs
 #V-Slice
 #Mod Folder Generator

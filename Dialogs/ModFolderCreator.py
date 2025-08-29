@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QDialog, QFileDialog
 from PySide6.QtCore import QDir
 import UI, Constants
-from ModFolder import PsychMod, CodenameMod, VsliceMod, ModFolder
+from Funkin.ModFolder import PsychMod, CodenameMod, VsliceMod, ModFolder
 
 
 class ModFolderCreator(QDialog):

@@ -33,5 +33,5 @@ def saveJson(path, data):
 def copyFile(filePath, copyfilePath):
     shutil.copyfile(os.path.normpath(filePath), os.path.normpath(copyfilePath))
 
-def listFolder(path):
+def listFolder(path) -> list[str]:
     return os.listdir(path)

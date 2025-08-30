@@ -28,12 +28,6 @@ class ModFolder:
     def getPath(self, path) -> str:
         return Paths.join(self.FolderPath, path)
 
-    def saveSong(self):
-        pass
-    def saveCharacter(self):
-        pass
-    def saveStage(self):
-        pass
     def __repr__(self):
         return f"Path={self.FolderPath} / Name={self.name} / Engine={self.getEngineName()}"
     

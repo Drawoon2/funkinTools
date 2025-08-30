@@ -7,20 +7,6 @@ class BaseData:
 		"runsGlobally": False,
 	 	"color": [212, 212, 212]
 	}
-	PSYCH_SONG_BASE = {"song": {
-			"player1": "bf",
-			"events": [],
-			"gfVersion": None,
-			"notes": [],
-			"player2": "dad",
-			"stage": "stage",
-			"bpm": "stage",
-			"speed": "stage",
-			"song": "Test",
-			"needsVoices": True,
-			"format": "psych_v1_funkintools_convert"
-		}
-	}
 	VSLICE_POLYMOD_META = {
     	"title": DEFAULT_MOD_NAME,
     	"description": "",
@@ -65,3 +51,15 @@ class Character:
 			
 class Events:
 	CAMERA_FOCUS = "(funkinTool)-camfocus"
+	CHANGE_BPM = "(funkinTool)-bpmchange"
+	PLAY_ANIMATION = "(funkinTool)-playanim"
+	CHANGE_CHARACTER = "(funkinTool)-changecharacter"
+	CHANGE_SCROLL_SPEED = "(funkinTool)-changescrollspeed"
+	ADD_ZOOM = "(funkinTool)-addzoom"
+
+class Notes:
+	ALT_ANIM = "(funkinTool)-altanim"
+	NO_ANIM = "(funkinTool)-noanim"
+class Camera:
+	HUD = "(funkinTool)-REFcamHUD"
+	GAME = "(funkinTool)-REFcamGame"

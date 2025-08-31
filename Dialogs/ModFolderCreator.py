@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QDialog, QFileDialog
 from PySide6.QtCore import QDir
-import UI, Constants
+from Constants import Engine
+import UI
 from Funkin.ModFolder import PsychMod, CodenameMod, VsliceMod, ModFolder
 
 
@@ -20,11 +21,11 @@ class ModFolderCreator(QDialog):
     def create(self):
         engineFolder = self.ui.engineFolderPath_label.text()
         match self.ui.comboBox.currentIndex():
-            case Constants.CODENAME:
+            case Engine.CODENAME:
                 self.mod = CodenameMod.generate(engineFolder)
-            case Constants.PSYCH:
+            case Engine.PSYCH:
                 self.mod = PsychMod.generate(engineFolder)
-            case Constants.VSLICE:
+            case Engine.VSLICE:
                 self.mod = VsliceMod.generate(engineFolder)
         name = self.ui.name_line_edit.text()
         self.mod.setModName(name)

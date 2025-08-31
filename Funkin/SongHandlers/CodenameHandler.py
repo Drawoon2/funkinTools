@@ -64,7 +64,7 @@ class CodenameHandler(SongHandler):
                     newparams["isOffset"] = CodenameHandler.getEventParam(event, 5, False)
                 case "Camera Movement":
                     name = Events.CAMERA_FOCUS
-                    newparams["char"] = params
+                    newparams["char"] = params[0]
                 case "Add Camera Zoom":
                     name = Events.ADD_ZOOM
                     newparams["amount"] = CodenameHandler.getEventParam(event, 0, 0)
@@ -77,7 +77,7 @@ class CodenameHandler(SongHandler):
                 case "BPM Change":
                     name = Events.CHANGE_BPM
                     newparams["bpm"] = CodenameHandler.getEventParam(event, 0, 100)
-                case "Scroll Speed Change" | 'Change Scroll Speed':
+                case "Scroll Speed Change":
                     name = Events.CHANGE_SCROLL_SPEED
                     newparams["tweenSpeed"] = CodenameHandler.getEventParam(event, 0, True)
                     newparams["speed"] = CodenameHandler.getEventParam(event, 1, 1)
@@ -102,6 +102,8 @@ class CodenameHandler(SongHandler):
                 match noteType:
                     case 0:
                         noteType = None
+                    case __:
+                        noteType = str(noteType)
 
                 lane.addNote(strum, noteData, length, noteType)
         

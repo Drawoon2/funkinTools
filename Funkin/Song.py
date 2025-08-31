@@ -37,6 +37,13 @@ class Chart:
         newLane = ChartLane(charName)
         self.lanes.insert(pos, newLane)
         return newLane
+    @staticmethod
+    def sortEventsFunc(event):
+        event:ChartEvent = event
+        return event.strum
+    def sortEvents(self):
+        self.events.sort(key=Chart.sortEventsFunc)
+
     
 
 class ChartEvent:

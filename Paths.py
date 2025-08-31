@@ -8,7 +8,8 @@ def join(path1, path2):
 
 def getAssetPath(path):
     return join("assets", path)
-
+def getFileName(path) -> str:
+    return os.path.basename(path)
 def exists(path):
     return os.path.exists(os.path.normpath(path))
 
@@ -22,7 +23,7 @@ def createFile(path, content):
     with open(path, "w") as file:
         file.write(content)
 
-def getJsonData(path):
+def getJsonData(path) -> dict:
     data = {}
     with open(path) as file:
         data = json.load(file)

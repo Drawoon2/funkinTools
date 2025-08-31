@@ -1,7 +1,7 @@
 from .SongHandler import SongHandler
 from Funkin.Song import Song, ChartEvent
 from Funkin.ModFolder import PsychMod
-from Constants import Character, Events, BaseData
+from Constants import Character, Events, Notes
 import Paths
 
 class PsychHandler(SongHandler):
@@ -28,6 +28,143 @@ class PsychHandler(SongHandler):
 		    "sectionNotes": [],
 		    "mustHitSection": True
 	    }
+    @staticmethod
+    def importSong(modFolder:PsychMod, songName:str):
+        
+        songDataPath = modFolder.getPath(f"data/{songName}")
+        eventsFile = Paths.join(songDataPath, "events.json")
+        song = Song(songName)
+        externalEvents:list[ChartEvent] = []
+        if Paths.exists(eventsFile):
+            eventsData = Paths.getJsonData(eventsFile)
+            externalEvents = PsychHandler.importEvents(eventsData.get("song", eventsData)["events"])
+
+        songPath = modFolder.getPath(f"songs/{songName}")
+        insts = Paths.join(songPath, "Inst.ogg")
+        possiblePlayerVoices = ["Voices-Player.ogg", "Voices.ogg"]
+        voicesList = []
+        for voice in possiblePlayerVoices:
+            path = Paths.join(songPath, voice)
+            if Paths.exists(path):
+                voicesList.insert(Character.BOYFRIEND, path)
+                break
+        opponetVoices = Paths.join(songPath, "Voices-Opponent.ogg")
+        if Paths.exists(opponetVoices):
+            voicesList.insert(Character.DAD, opponetVoices)
+
+        for file in Paths.listFolder(songDataPath):
+            if file.startswith(songName):
+                chart = PsychHandler.addChart(song, Paths.join(songDataPath, file), externalEvents)
+                chart.songInst = insts
+                chart.songVoices = voicesList
+        return song
+    @staticmethod
+    def addChart(song:Song, filePath:str, externalEvents:list[ChartEvent]):
+        chartData = Paths.getJsonData(filePath)
+        if chartData.get("notes") is None:
+            chartData = chartData.get("song")
+        diff = Paths.getFileName(filePath).removeprefix(song.internName).removesuffix(".json")
+        if diff.strip() == "":
+            diff = "normal"
+        else:
+            diff = diff.removeprefix("-")
+        print(diff)
+        chart = song.addChart(diff)
+        chart.scrollSpeed = chartData["speed"]
+        chart.bpm = chartData["bpm"]
+        chart.songName = chartData["song"]
+        chart.stage = chartData["stage"]
+        chart.addLane(chartData["player2"], Character.DAD)
+        chart.addLane(chartData["player1"], Character.BOYFRIEND)
+        chart.addLane(chartData.get("gfVersion", "gf"), Character.GF)
+        lastMustHitSection = None
+        sectionsLength = ((60 / chart.bpm) * 1000) * 4
+        sectionEvents = []
+        for i, section in enumerate(chartData["notes"]):
+            gfSection = section.get("gfSection", False)
+            mustHitSection = section.get("mustHitSection", False)
+
+            for note in section["sectionNotes"]:
+                if note[1] > 3:
+                    if gfSection and not mustHitSection:
+                        char = Character.GF
+                    else:
+                        char = Character.DAD
+                elif gfSection and mustHitSection:
+                    char = Character.GF
+                else:
+                    char = Character.BOYFRIEND
+
+                strum = note[0]
+                noteData = note[1] % 4
+                length = note[2]
+                if len(note) < 4:
+                    noteType = None
+                else:
+                    noteType = note[3]
+                match noteType:
+                    case "":
+                        noteType = None
+                    case "GF Sing":
+                        noteType = None
+                        char = Character.GF
+                    case "Alt Animation":
+                        noteType = Notes.ALT_ANIM
+                    case "No Animation":
+                        noteType = Notes.NO_ANIM
+                lane = chart.getLane(char)
+                lane.addNote(strum, noteData, length, noteType)
+
+            #Section Events
+            if lastMustHitSection is None or lastMustHitSection != mustHitSection:
+                values = {}
+                if mustHitSection:
+                    values["char"] = Character.BOYFRIEND
+                else:
+                    values["char"] = Character.DAD
+                if gfSection:
+                    values["char"] = Character.GF
+                event = ChartEvent(sectionsLength * (i -1), Events.CAMERA_FOCUS, values)
+                sectionEvents.append(event)
+                lastMustHitSection == mustHitSection
+
+        events = PsychHandler.importEvents(chartData["events"])
+        chart.events = events + sectionEvents + externalEvents
+        chart.sortEvents()
+        return chart
+    
+    @staticmethod
+    def importEvents(eventsList):
+        events = []
+        for eventGroup in eventsList:
+            strum = eventGroup[0]
+            for event in eventGroup[1]:
+                name = event[0]
+                value1 = event[1]
+                value2 = event[2]
+                args = {}
+                match name:
+                    case "Play Animation":
+                        name = Events.PLAY_ANIMATION
+                        args["animation"] = value1
+                        args["character"] = value2
+                    case "Camera Follow Pos":
+                        if value1 == "" and value2 == "":
+                            continue
+                        name = Events.CAMERA_FOCUS
+                        args["char"] = -1
+                        args["x"] = float(value1)
+                        args["y"] = float(value2)
+                    case "Change Scroll Speed":
+                        name = Events.CHANGE_SCROLL_SPEED
+                        args["speed"] = value1
+                        args["multiplive"] = True
+                        args["timeSec"] = value2
+                event = ChartEvent(strum, name, args)
+                events.append(event)
+
+
+        return events
     @staticmethod
     def exportSong(modFolder:PsychMod, song:Song, diff) -> bool:
         Paths.createFolder(modFolder.getPath("songs"))
@@ -122,7 +259,10 @@ class PsychHandler(SongHandler):
                         newSpeedMult = event.getValue("speed", 1)
                     else:
                         newSpeedMult = event.getValue("speed", 1) / chart.scrollSpeed
-                    duration = (event.getValue("time", 1) * ((60 / chart.bpm) * 250)) / 1000
+                    if event.getValue("timeSec") is not None:
+                        duration = event.getValue("timeSec")
+                    else:
+                        duration = (event.getValue("time", 1) * ((60 / chart.bpm) * 250)) / 1000
 
                     addEvent(event.strum, "Change Scroll Speed", str(newSpeedMult), str(duration))
                 case Events.PLAY_ANIMATION:

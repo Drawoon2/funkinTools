@@ -11,10 +11,12 @@ def getAssetPath(path):
 def getFileName(path) -> str:
     return os.path.basename(path)
 def exists(path):
+    if path is None:
+        return False
     return os.path.exists(os.path.normpath(path))
 
 def createFolder(path):
-    if not exists(path):
+    if not os.path.isdir(os.path.normpath(path)):
         os.mkdir(path)
 
 def rename(ogPath, path):
@@ -35,4 +37,10 @@ def copyFile(filePath, copyfilePath):
     shutil.copyfile(os.path.normpath(filePath), os.path.normpath(copyfilePath))
 
 def listFolder(path) -> list[str]:
+    path = os.path.normpath(path)
+    if not os.path.isdir(path):
+        return []
     return os.listdir(path)
+
+def isDir(path) -> bool:
+    return os.path.isdir(os.path.normpath(path))

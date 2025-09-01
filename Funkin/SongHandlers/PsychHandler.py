@@ -14,8 +14,8 @@ class PsychHandler(SongHandler):
 			"notes": [],
 			"player2": "dad",
 			"stage": "stage",
-			"bpm": "stage",
-			"speed": "stage",
+			"bpm": 100,
+			"speed": 3,
 			"song": "Test",
 			"needsVoices": True,
 			"format": "psych_v1_funkintools_convert"

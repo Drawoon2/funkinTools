@@ -11,6 +11,8 @@ class Song:
         return chart
     def getChart(self, diff:str = "hard"):
         return self.charts.get(diff, None)
+    def getDifficults(self) -> list:
+        return self.charts.keys()
                 
         
         

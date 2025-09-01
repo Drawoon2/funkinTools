@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ModGlobal</class>
+ <widget class="QWidget" name="ModGlobal">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>433</width>
+    <height>228</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Global Settings</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="2" column="1" colspan="2">
+    <widget class="QLineEdit" name="desc_input"/>
+   </item>
+   <item row="3" column="1" colspan="2">
+    <widget class="QLineEdit" name="version_input"/>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="desc_label">
+     <property name="text">
+      <string>Description:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1" colspan="2">
+    <widget class="QLineEdit" name="name_input"/>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="api_label">
+     <property name="text">
+      <string>Api Version:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QPushButton" name="save_button">
+     <property name="text">
+      <string>Save Changes</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="version_label">
+     <property name="text">
+      <string>Mod Version:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="3">
+    <widget class="QLabel" name="icon_label">
+     <property name="text">
+      <string>Current Icon:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1" colspan="2">
+    <widget class="QLineEdit" name="discord_input"/>
+   </item>
+   <item row="4" column="1" colspan="2">
+    <widget class="QLineEdit" name="api_input"/>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="name_label">
+     <property name="text">
+      <string>Mod Name:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="discord_label">
+     <property name="text">
+      <string>Discord RPC ID:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="4">
+    <widget class="QPushButton" name="selecticon_button">
+     <property name="text">
+      <string>Set other Icon</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="3" rowspan="4" colspan="2">
+    <widget class="QLabel" name="icon_preview">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap>../assets/defaultIcon.png</pixmap>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignmentFlag::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1">
+    <widget class="QPushButton" name="clear_button">
+     <property name="text">
+      <string>Clear Changes</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,4 +1,3 @@
-from PySide6.QtGui import QPixmap
 from .ModFolder import ModFolder
 import Paths, Constants
 from Constants import Engine
@@ -17,6 +16,11 @@ class PsychMod(ModFolder):
         super().__init__(path)
         self.pack = PsychMod.generatePackData()
 
+    @classmethod
+    def load(cls, path):
+        mod = cls(path)
+        mod.update()
+        return mod
     def getEngine(self):
         return Engine.PSYCH
     def setIcon(self, iconPath):

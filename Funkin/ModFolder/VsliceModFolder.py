@@ -65,3 +65,8 @@ class VsliceMod(ModFolder):
                 continue
             songs.append(songName)
         return songs
+    @classmethod
+    def load(cls, path):
+        mod = cls(path)
+        mod.update()
+        return mod

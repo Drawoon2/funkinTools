@@ -1,10 +1,12 @@
 from .SongHandler import SongHandler
 from Funkin.Song import Song, ChartEvent, Chart
 from Funkin.ModFolder import VsliceMod
-from Constants import Character, Events
+from Constants import Character, Events, Engine, Notes
 import Paths, zipfile
 
 class VSliceHandler(SongHandler):
+    def __init__(self):
+        super().__init__(Engine.VSLICE)
     @staticmethod
     def getChartBase():
         return {
@@ -46,8 +48,7 @@ class VSliceHandler(SongHandler):
     @staticmethod
     def sortNotes(note):
         return note["t"]
-    @staticmethod
-    def generateChart(song:Song, diff:str = "hard"):
+    def generateChart(self, song:Song, diff:str = "hard"):
         chartdata = VSliceHandler.getChartBase()
         chart = song.getChart(diff)
         diffChart = []
@@ -61,7 +62,7 @@ class VSliceHandler(SongHandler):
                 addNote["t"] = note["strum"]
                 addNote["d"] = noteData
                 addNote["l"] = note["length"]
-                if noteType is not None:
+                if noteType != Notes.DEFAULT:
                     addNote["k"] = noteType
                 diffChart.append(addNote)
         
@@ -69,10 +70,9 @@ class VSliceHandler(SongHandler):
         chartdata["notes"][diff] = diffChart
         chartdata["scrollSpeed"][diff] = chart.scrollSpeed
 
-        chartdata["events"] = VSliceHandler.exportEvents(chart)
+        chartdata["events"] = self.exportEvents(chart)
         return chartdata
-    @staticmethod
-    def generateMetadata(song:Song, diff:str = "hard"):
+    def generateMetadata(self, song:Song, diff:str = "hard"):
         metadata = VSliceHandler.getMetaBase()
         chart = song.getChart(diff)
         characterList = {}
@@ -87,8 +87,7 @@ class VSliceHandler(SongHandler):
         metadata["songName"] = chart.songName
         metadata["timeChanges"][0]["bpm"] = chart.bpm
         return metadata
-    @staticmethod
-    def saveMusic(path, song:Song, diff:str = "hard"):
+    def saveMusic(self, path, song:Song, diff:str = "hard"):
         chart = song.getChart(diff)
         #Localized voices
         if len(chart.songVoices) > 1:
@@ -102,29 +101,27 @@ class VSliceHandler(SongHandler):
         #Localized insts
         Paths.copyFile(chart.songInst, f"{path}/Inst.ogg")
 
-    @staticmethod
-    def exportSong(modFolder:VsliceMod, song:Song, diff:str = "hard"):
+    def exportSong(self, modFolder:VsliceMod, song:Song, diff:str = "hard"):
         Paths.createFolder(modFolder.getPath(f"data/songs"))
         songDataPath = modFolder.getPath(f"data/songs/{song.internName}")
         songPath = modFolder.getPath(f"songs/{song.internName}")
         Paths.createFolder(songDataPath)
         Paths.createFolder(songPath)
 
-        metadata = VSliceHandler.generateMetadata(song, diff)
-        chartdata = VSliceHandler.generateChart(song, diff)
-        VSliceHandler.saveMusic(songPath, song, diff)
+        metadata = self.generateMetadata(song, diff)
+        chartdata = self.generateChart(song, diff)
+        self.saveMusic(songPath, song, diff)
 
         Paths.saveJson(f"{songDataPath}/{song.internName}-chart.json", chartdata)
         Paths.saveJson(f"{songDataPath}/{song.internName}-metadata.json", metadata)
 
         return True
-    @staticmethod
-    def exportFNFC(song:Song, diff:str = "hard", path:str = "temp"):
+    def exportFNFC(self, song:Song, diff:str = "hard", path:str = "temp"):
         temp = f"temp/{song.internName}"
         Paths.createFolder(temp)
-        metadata = VSliceHandler.generateMetadata(song, diff)
-        chartdata = VSliceHandler.generateChart(song, diff)
-        VSliceHandler.saveMusic(temp, song, diff)
+        metadata = self.generateMetadata(song, diff)
+        chartdata = self.generateChart(song, diff)
+        self.saveMusic(temp, song, diff)
         Paths.saveJson(f"{temp}/{song.internName}-chart.json", chartdata)
         Paths.saveJson(f"{temp}/{song.internName}-metadata.json", metadata)
         Paths.saveJson(f"{temp}/manifest.json", VSliceHandler.getManifest(song.internName))
@@ -135,8 +132,7 @@ class VSliceHandler(SongHandler):
                 fullPath = f"{temp}/{file}"
                 zip.write(fullPath, file)
 
-    @staticmethod
-    def importSong(modFolder:VsliceMod, songName:str) -> Song:
+    def importSong(self, modFolder:VsliceMod, songName:str) -> Song:
         songDataFolder = modFolder.getPath(f"data/songs/{songName}")
         songFolder = modFolder.getPath(f"songs/{songName}")
 
@@ -144,12 +140,12 @@ class VSliceHandler(SongHandler):
         defaultMeta = Paths.getJsonData(modFolder.getPath(f"data/songs/{songName}/{songName}-metadata.json"))
         newSong = Song(songName)
         #Events
-        events = VSliceHandler.importEvents(defaultChart)
+        events = self.importEvents(defaultChart)
         #get Audio Files    
-        voices = VSliceHandler.getVoices(songFolder, defaultMeta)
-        insts = VSliceHandler.getInst(songFolder, defaultMeta)
+        voices = self.getVoices(songFolder, defaultMeta)
+        insts = self.getInst(songFolder, defaultMeta)
 
-        metaData = VSliceHandler.getMetaData(defaultMeta, defaultChart)
+        metaData = self.getMetaData(defaultMeta, defaultChart)
         #Chart 
         characters:dict = defaultMeta["playData"]["characters"]
         bpm = defaultMeta["timeChanges"][0]["bpm"]
@@ -167,7 +163,7 @@ class VSliceHandler(SongHandler):
                 if note["d"] > 3:
                     lane = chart.getLane(Character.DAD)
                 
-                lane.addNote(note["t"], noteData, note.get("l", 0), note.get("k", None))
+                lane.addNote(note["t"], noteData, note.get("l", 0), note.get("k", Notes.DEFAULT))
             chart.events = events
             chart.bpm = bpm
             chart.songVoices = voices
@@ -183,9 +179,8 @@ class VSliceHandler(SongHandler):
         #Maybe Save Variants Too
 
         return newSong
-    
-    @staticmethod
-    def getMetaData(metaData:dict, chartData:dict) -> dict:
+
+    def getMetaData(self, metaData:dict, chartData:dict) -> dict:
         meta = {}
         meta["charter"] = metaData.get("charter")
         meta["artist"] = metaData.get("artist")
@@ -194,8 +189,7 @@ class VSliceHandler(SongHandler):
         meta["chartVersion"] = chartData["version"]
         meta["chartGeneratedBy"] = chartData["generatedBy"]
         return meta
-    @staticmethod
-    def getVoices(songFolder:str, metaData:dict) -> list:
+    def getVoices(self, songFolder:str, metaData:dict) -> list:
         voices = []
         characters:dict = metaData["playData"]["characters"]
         def checkVoice(suffix):
@@ -218,20 +212,35 @@ class VSliceHandler(SongHandler):
         voices.insert(Character.BOYFRIEND, getVoicePath("player", characters.get("playerVocals")))
         voices.insert(Character.DAD, getVoicePath("opponent", characters.get("opponentVocals")))
         return voices
-    @staticmethod
-    def getInst(songFolder:str, metaData:dict):
+    def getInst(self, songFolder:str, metaData:dict):
         variant = metaData["playData"]["characters"].get("instrumental", "")
         if variant != "":
             variant = "-" + variant
         return Paths.join(songFolder, f"Inst{variant}.ogg")
-
-    @staticmethod
-    def exportEvents(chart:Chart) -> list:
+    
+    def exportEvents(self, chart:Chart) -> list:
         events = []
         for event in chart.events:
             name = event.name
             args = {}
             match name:
+                case Events.CHANGE_BUMP_INTERVAL:
+                    name = "SetCameraBop"
+                    args["intensity"] = event.getValue("stregth")
+                    interval = event.getValue("interval")
+                    offset = event.getValue("offset")
+                    if event.getValue("unit") is not None:
+                        match event.getValue("unit"):
+                            case "MESURE": # Section
+                                interval *= 4
+                                offset *= 4
+                            case "STEP":
+                                interval /= 4 #VSlice can't hold step precision
+                                interval = int(interval + .5) # This work something like a round
+                                offset /= 4
+                                offset = int(offset + .5)
+                    args["rate"] = interval #Vslice unit is beat
+                    args["offset"] = offset #Vslice unit is beat
                 case Events.CAMERA_FOCUS:
                     name = "FocusCamera"
                     match event.getValue("char"):
@@ -282,8 +291,7 @@ class VSliceHandler(SongHandler):
             }
             events.append(eventData)
         return events
-    @staticmethod
-    def importEvents(chart) -> list:
+    def importEvents(self, chart) -> list:
         events = []
         for event in chart["events"]:
             strum = event["t"]

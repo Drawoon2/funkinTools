@@ -25,14 +25,14 @@ def exportSong(modFolder:ModFolder, song:Song, diff:str = "hard"):
         print(f"Couldn't export {song.internName}")
 
 def exportFNFC(song:Song, diff:str = "hard", path:str = "temp"):
-    VSliceHandler.exportFNFC(song, diff, path)
+    VSliceHandler().exportFNFC(song, diff, path)
 
 def getHandler(engine) -> SongHandler:
     match engine:
         case Engine.PSYCH:
-            return PsychHandler
+            return PsychHandler()
         case Engine.CODENAME:
-            return CodenameHandler
+            return CodenameHandler()
         case Engine.VSLICE:
-            return VSliceHandler
-    return SongHandler
+            return VSliceHandler()
+    return SongHandler()

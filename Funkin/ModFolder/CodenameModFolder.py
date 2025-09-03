@@ -31,3 +31,6 @@ class CodenameMod(ModFolder):
                 continue
             songs.append(songName)
         return songs
+    @classmethod
+    def load(cls, path):
+        return cls(path)

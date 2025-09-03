@@ -1,7 +1,8 @@
-from PySide6.QtWidgets import QMainWindow, QWidget, QMdiArea
+from PySide6.QtWidgets import QMainWindow, QWidget, QMdiArea, QFileDialog
 from PySide6.QtGui import QAction
-from PySide6.QtCore import Qt
-from Funkin.ModFolder import ModFolder
+from PySide6.QtCore import Qt, QDir
+from Constants import Engine
+from Funkin.ModFolder import ModFolder, PsychMod, CodenameMod, VsliceMod
 import UI, Dialogs, Widgets, Manager
 #V-Slice
 #Mod Folder Generator
@@ -35,6 +36,7 @@ class FunkinWindow(QMainWindow):
 
 
         self.ui.file_newMod.triggered.connect(self.createMod)
+        self.ui.file_openMod.triggered.connect(self.openMod)
         self.generateToolbarButton("Global", self.openGlobalModWindow)
         self.generateToolbarButton("Songs/Charts", self.openSongWindow)
         self.generateToolbarButton("Characters")
@@ -72,6 +74,18 @@ class FunkinWindow(QMainWindow):
             
         else:
             print("Couldn't create the mod Folder")
+    def openMod(self):
+        modFolderPath = QFileDialog.getExistingDirectory(self, "Plese select the Mod Folder", QDir.currentPath())
+        engine = ModFolder.guessEngine(modFolderPath)
+        modFolder = None
+        match engine:
+            case Engine.PSYCH:
+                modFolder = PsychMod.load(modFolderPath)
+            case Engine.CODENAME:
+                modFolder = CodenameMod.load(modFolderPath)
+            case Engine.VSLICE:
+                modFolder = VsliceMod.load(modFolderPath)
+        Manager.instance.setModFolder(modFolder)
     def updateStatusBar(self):
         mod = Manager.instance.modFolder
         self.statusBar().showMessage(f"Mod path: {mod.FolderPath} / Using Engine: {mod.getEngineName()}")

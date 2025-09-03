@@ -13,7 +13,14 @@ class ModFolder:
             return Engine.VSLICE
         
         return Engine.CODENAME
-    
+    @staticmethod
+    def guessEngine(path):
+        if Paths.exists(Paths.join(path, "pack.json")):
+            return Engine.PSYCH
+        elif Paths.exists(Paths.join(path, "_polymod_meta.json")):
+            return Engine.VSLICE
+        
+        return Engine.CODENAME
     def getEngineName(self):
         return Engine.getName(self.getEngine())
 

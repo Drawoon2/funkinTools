@@ -1,10 +1,12 @@
 from .SongHandler import SongHandler
 from Funkin.Song import Song, ChartEvent
 from Funkin.ModFolder import PsychMod
-from Constants import Character, Events, Notes
+from Constants import Character, Events, Notes, Engine
 import Paths
 
 class PsychHandler(SongHandler):
+    def __init__(self):
+        super().__init__(Engine.PSYCH)
     @staticmethod
     def getSongBase():
         return {"song": {
@@ -28,8 +30,7 @@ class PsychHandler(SongHandler):
 		    "sectionNotes": [],
 		    "mustHitSection": True
 	    }
-    @staticmethod
-    def importSong(modFolder:PsychMod, songName:str):
+    def importSong(self, modFolder:PsychMod, songName:str):
         
         songDataPath = modFolder.getPath(f"data/{songName}")
         eventsFile = Paths.join(songDataPath, "events.json")
@@ -37,7 +38,7 @@ class PsychHandler(SongHandler):
         externalEvents:list[ChartEvent] = []
         if Paths.exists(eventsFile):
             eventsData = Paths.getJsonData(eventsFile)
-            externalEvents = PsychHandler.importEvents(eventsData.get("song", eventsData)["events"])
+            externalEvents = self.importEvents(eventsData.get("song", eventsData)["events"])
 
         songPath = modFolder.getPath(f"songs/{songName}")
         insts = Paths.join(songPath, "Inst.ogg")
@@ -54,12 +55,11 @@ class PsychHandler(SongHandler):
 
         for file in Paths.listFolder(songDataPath):
             if file.startswith(songName):
-                chart = PsychHandler.addChart(song, Paths.join(songDataPath, file), externalEvents)
+                chart = self.addChart(song, Paths.join(songDataPath, file), externalEvents)
                 chart.songInst = insts
                 chart.songVoices = voicesList
         return song
-    @staticmethod
-    def addChart(song:Song, filePath:str, externalEvents:list[ChartEvent]):
+    def addChart(self, song:Song, filePath:str, externalEvents:list[ChartEvent]):
         chartData = Paths.getJsonData(filePath)
         if chartData.get("notes") is None:
             chartData = chartData.get("song")
@@ -99,14 +99,14 @@ class PsychHandler(SongHandler):
                 noteData = note[1] % 4
                 length = note[2]
                 if len(note) < 4:
-                    noteType = None
+                    noteType = Notes.DEFAULT
                 else:
                     noteType = note[3]
                 match noteType:
                     case "":
-                        noteType = None
+                        noteType = Notes.DEFAULT
                     case "GF Sing":
-                        noteType = None
+                        noteType = Notes.DEFAULT
                         char = Character.GF
                     case "Alt Animation":
                         noteType = Notes.ALT_ANIM
@@ -128,13 +128,12 @@ class PsychHandler(SongHandler):
                 sectionEvents.append(event)
                 lastMustHitSection == mustHitSection
 
-        events = PsychHandler.importEvents(chartData["events"])
+        events = self.importEvents(chartData["events"])
         chart.events = events + sectionEvents + externalEvents
         chart.sortEvents()
         return chart
-    
-    @staticmethod
-    def importEvents(eventsList):
+
+    def importEvents(self, eventsList):
         events = []
         for eventGroup in eventsList:
             strum = eventGroup[0]
@@ -165,8 +164,7 @@ class PsychHandler(SongHandler):
 
 
         return events
-    @staticmethod
-    def exportSong(modFolder:PsychMod, song:Song, diff) -> bool:
+    def exportSong(self, modFolder:PsychMod, song:Song, diff) -> bool:
         Paths.createFolder(modFolder.getPath("songs"))
         Paths.createFolder(modFolder.getPath(f"songs/{song.internName}"))
         Paths.createFolder(modFolder.getPath("data"))
@@ -235,7 +233,7 @@ class PsychHandler(SongHandler):
                     noteData += 4
 
                 newNote = [strum, noteData, length]
-                if noteType is not None:
+                if noteType != Notes.DEFAULT:
                     newNote.append(noteType)
 
                 sectionIdx = int(strum // sectionsLength)
@@ -251,6 +249,7 @@ class PsychHandler(SongHandler):
             section["sectionNotes"].sort(key = sortFunc)
 
         lastFocusIdx = 0
+        forceCameraZoomActive = False
         for event in chart.events:
             match event.name:
                 case Events.CHANGE_SCROLL_SPEED: #Lose: tweenSpeed, ease, type
@@ -292,9 +291,13 @@ class PsychHandler(SongHandler):
                             notes[sections]["mustHitSection"] = lastHitSection
 
                         lastFocusIdx = sectionIdx
+                        if forceCameraZoomActive:
+                            forceCameraZoomActive = False
+                            addEvent(event.strum, "Camera Follow Pos", "", "")
                     else:
                         if character == -1:
                             addEvent(event.strum, "Camera Follow Pos", str(event.getValue("x")), str(event.getValue("y")))
+                            forceCameraZoomActive = True
                         else:
                             args = event.vars.copy()
                             args.pop("char")

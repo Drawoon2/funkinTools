@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'mod_songsXXSMsR.ui'
+## Form generated from reading UI file 'mod_songsZoYiTd.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.9.2
 ##
@@ -15,211 +15,255 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QFormLayout,
-    QGridLayout, QGroupBox, QLabel, QLineEdit,
-    QListWidget, QListWidgetItem, QPushButton, QSizePolicy,
-    QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QGridLayout,
+    QGroupBox, QLabel, QLineEdit, QListWidget,
+    QListWidgetItem, QPushButton, QSizePolicy, QVBoxLayout,
+    QWidget)
 
 class Ui_ModSongs(object):
     def setupUi(self, ModSongs):
         if not ModSongs.objectName():
             ModSongs.setObjectName(u"ModSongs")
-        ModSongs.resize(582, 486)
+        ModSongs.resize(782, 579)
         self.gridLayout = QGridLayout(ModSongs)
         self.gridLayout.setObjectName(u"gridLayout")
-        self.label_6 = QLabel(ModSongs)
-        self.label_6.setObjectName(u"label_6")
+        self.opponent_label = QLabel(ModSongs)
+        self.opponent_label.setObjectName(u"opponent_label")
 
-        self.gridLayout.addWidget(self.label_6, 5, 1, 1, 1)
+        self.gridLayout.addWidget(self.opponent_label, 7, 2, 1, 1)
 
-        self.lineEdit_6 = QLineEdit(ModSongs)
-        self.lineEdit_6.setObjectName(u"lineEdit_6")
+        self.gf_label = QLabel(ModSongs)
+        self.gf_label.setObjectName(u"gf_label")
 
-        self.gridLayout.addWidget(self.lineEdit_6, 5, 2, 1, 1)
+        self.gridLayout.addWidget(self.gf_label, 8, 2, 1, 1)
 
-        self.groupBox_2 = QGroupBox(ModSongs)
-        self.groupBox_2.setObjectName(u"groupBox_2")
-        self.gridLayout_2 = QGridLayout(self.groupBox_2)
+        self.gf_input = QLineEdit(ModSongs)
+        self.gf_input.setObjectName(u"gf_input")
+
+        self.gridLayout.addWidget(self.gf_input, 8, 3, 1, 2)
+
+        self.player_label = QLabel(ModSongs)
+        self.player_label.setObjectName(u"player_label")
+
+        self.gridLayout.addWidget(self.player_label, 6, 2, 1, 1)
+
+        self.import_group = QGroupBox(ModSongs)
+        self.import_group.setObjectName(u"import_group")
+        self.gridLayout_3 = QGridLayout(self.import_group)
+        self.gridLayout_3.setObjectName(u"gridLayout_3")
+        self.importlocal_button = QPushButton(self.import_group)
+        self.importlocal_button.setObjectName(u"importlocal_button")
+
+        self.gridLayout_3.addWidget(self.importlocal_button, 0, 0, 1, 1)
+
+        self.import_button = QPushButton(self.import_group)
+        self.import_button.setObjectName(u"import_button")
+
+        self.gridLayout_3.addWidget(self.import_button, 1, 0, 1, 1)
+
+        self.renamedefault_check = QCheckBox(self.import_group)
+        self.renamedefault_check.setObjectName(u"renamedefault_check")
+
+        self.gridLayout_3.addWidget(self.renamedefault_check, 3, 0, 1, 1)
+
+        self.open_button = QPushButton(self.import_group)
+        self.open_button.setObjectName(u"open_button")
+
+        self.gridLayout_3.addWidget(self.open_button, 2, 0, 1, 1)
+
+
+        self.gridLayout.addWidget(self.import_group, 1, 0, 6, 2)
+
+        self.notetypes_group = QGroupBox(ModSongs)
+        self.notetypes_group.setObjectName(u"notetypes_group")
+        self.gridLayout_2 = QGridLayout(self.notetypes_group)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
-        self.label_7 = QLabel(self.groupBox_2)
-        self.label_7.setObjectName(u"label_7")
+        self.note_name_combobox = QComboBox(self.notetypes_group)
+        self.note_name_combobox.setObjectName(u"note_name_combobox")
 
-        self.gridLayout_2.addWidget(self.label_7, 0, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.note_name_combobox, 1, 0, 1, 1)
 
-        self.pushButton_5 = QPushButton(self.groupBox_2)
-        self.pushButton_5.setObjectName(u"pushButton_5")
+        self.note_addconfig_button = QPushButton(self.notetypes_group)
+        self.note_addconfig_button.setObjectName(u"note_addconfig_button")
 
-        self.gridLayout_2.addWidget(self.pushButton_5, 7, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.note_addconfig_button, 7, 0, 1, 1)
 
-        self.pushButton_6 = QPushButton(self.groupBox_2)
-        self.pushButton_6.setObjectName(u"pushButton_6")
+        self.note_rename_label = QLabel(self.notetypes_group)
+        self.note_rename_label.setObjectName(u"note_rename_label")
 
-        self.gridLayout_2.addWidget(self.pushButton_6, 8, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.note_rename_label, 2, 0, 1, 1)
 
-        self.checkBox_3 = QCheckBox(self.groupBox_2)
-        self.checkBox_3.setObjectName(u"checkBox_3")
+        self.note_rename_input = QLineEdit(self.notetypes_group)
+        self.note_rename_input.setObjectName(u"note_rename_input")
+        self.note_rename_input.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignTop)
 
-        self.gridLayout_2.addWidget(self.checkBox_3, 6, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.note_rename_input, 3, 0, 1, 1)
 
-        self.label_8 = QLabel(self.groupBox_2)
-        self.label_8.setObjectName(u"label_8")
+        self.note_removeconfig_button = QPushButton(self.notetypes_group)
+        self.note_removeconfig_button.setObjectName(u"note_removeconfig_button")
 
-        self.gridLayout_2.addWidget(self.label_8, 2, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.note_removeconfig_button, 8, 0, 1, 1)
 
-        self.listWidget = QListWidget(self.groupBox_2)
-        QListWidgetItem(self.listWidget)
-        self.listWidget.setObjectName(u"listWidget")
+        self.note_name_label = QLabel(self.notetypes_group)
+        self.note_name_label.setObjectName(u"note_name_label")
 
-        self.gridLayout_2.addWidget(self.listWidget, 0, 1, 9, 1)
+        self.gridLayout_2.addWidget(self.note_name_label, 0, 0, 1, 1)
 
-        self.comboBox = QComboBox(self.groupBox_2)
-        self.comboBox.setObjectName(u"comboBox")
+        self.note_settings_list = QListWidget(self.notetypes_group)
+        QListWidgetItem(self.note_settings_list)
+        self.note_settings_list.setObjectName(u"note_settings_list")
 
-        self.gridLayout_2.addWidget(self.comboBox, 1, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.note_settings_list, 0, 1, 9, 1)
 
-        self.lineEdit_7 = QLineEdit(self.groupBox_2)
-        self.lineEdit_7.setObjectName(u"lineEdit_7")
-        self.lineEdit_7.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignTop)
+        self.note_remove_check = QCheckBox(self.notetypes_group)
+        self.note_remove_check.setObjectName(u"note_remove_check")
 
-        self.gridLayout_2.addWidget(self.lineEdit_7, 3, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.note_remove_check, 6, 0, 1, 1)
 
 
-        self.gridLayout.addWidget(self.groupBox_2, 7, 1, 1, 2)
+        self.gridLayout.addWidget(self.notetypes_group, 10, 2, 1, 3)
 
-        self.pushButton_4 = QPushButton(ModSongs)
-        self.pushButton_4.setObjectName(u"pushButton_4")
+        self.opponent_input = QLineEdit(ModSongs)
+        self.opponent_input.setObjectName(u"opponent_input")
 
-        self.gridLayout.addWidget(self.pushButton_4, 4, 0, 1, 1)
+        self.gridLayout.addWidget(self.opponent_input, 7, 3, 1, 2)
 
-        self.label = QLabel(ModSongs)
-        self.label.setObjectName(u"label")
+        self.name_input = QLineEdit(ModSongs)
+        self.name_input.setObjectName(u"name_input")
 
-        self.gridLayout.addWidget(self.label, 0, 1, 1, 1)
+        self.gridLayout.addWidget(self.name_input, 4, 3, 1, 2)
 
-        self.label_2 = QLabel(ModSongs)
-        self.label_2.setObjectName(u"label_2")
+        self.exportfnfc_button = QPushButton(ModSongs)
+        self.exportfnfc_button.setObjectName(u"exportfnfc_button")
 
-        self.gridLayout.addWidget(self.label_2, 1, 1, 1, 1)
+        self.gridLayout.addWidget(self.exportfnfc_button, 8, 0, 1, 1)
 
-        self.pushButton_3 = QPushButton(ModSongs)
-        self.pushButton_3.setObjectName(u"pushButton_3")
+        self.translatenotes_check = QCheckBox(ModSongs)
+        self.translatenotes_check.setObjectName(u"translatenotes_check")
 
-        self.gridLayout.addWidget(self.pushButton_3, 5, 0, 1, 1)
+        self.gridLayout.addWidget(self.translatenotes_check, 7, 1, 1, 1)
 
-        self.label_3 = QLabel(ModSongs)
-        self.label_3.setObjectName(u"label_3")
+        self.addsong_button = QPushButton(ModSongs)
+        self.addsong_button.setObjectName(u"addsong_button")
 
-        self.gridLayout.addWidget(self.label_3, 2, 1, 1, 1)
+        self.gridLayout.addWidget(self.addsong_button, 7, 0, 1, 1)
 
-        self.checkBox = QCheckBox(ModSongs)
-        self.checkBox.setObjectName(u"checkBox")
+        self.name_label = QLabel(ModSongs)
+        self.name_label.setObjectName(u"name_label")
 
-        self.gridLayout.addWidget(self.checkBox, 6, 0, 1, 1)
+        self.gridLayout.addWidget(self.name_label, 4, 2, 1, 1)
 
-        self.lineEdit_3 = QLineEdit(ModSongs)
-        self.lineEdit_3.setObjectName(u"lineEdit_3")
+        self.translateevents_check = QCheckBox(ModSongs)
+        self.translateevents_check.setObjectName(u"translateevents_check")
 
-        self.gridLayout.addWidget(self.lineEdit_3, 2, 2, 1, 1)
+        self.gridLayout.addWidget(self.translateevents_check, 8, 1, 1, 1)
 
-        self.checkBox_2 = QCheckBox(ModSongs)
-        self.checkBox_2.setObjectName(u"checkBox_2")
+        self.variant_input = QLineEdit(ModSongs)
+        self.variant_input.setObjectName(u"variant_input")
 
-        self.gridLayout.addWidget(self.checkBox_2, 6, 2, 1, 1)
+        self.gridLayout.addWidget(self.variant_input, 3, 4, 1, 1)
 
-        self.groupBox = QGroupBox(ModSongs)
-        self.groupBox.setObjectName(u"groupBox")
-        self.verticalLayout = QVBoxLayout(self.groupBox)
+        self.variants_label = QLabel(ModSongs)
+        self.variants_label.setObjectName(u"variants_label")
+
+        self.gridLayout.addWidget(self.variants_label, 3, 3, 1, 1)
+
+        self.isvariant_check = QCheckBox(ModSongs)
+        self.isvariant_check.setObjectName(u"isvariant_check")
+
+        self.gridLayout.addWidget(self.isvariant_check, 3, 2, 1, 1)
+
+        self.diff_label = QLabel(ModSongs)
+        self.diff_label.setObjectName(u"diff_label")
+
+        self.gridLayout.addWidget(self.diff_label, 2, 2, 1, 1)
+
+        self.internalname_input = QLineEdit(ModSongs)
+        self.internalname_input.setObjectName(u"internalname_input")
+
+        self.gridLayout.addWidget(self.internalname_input, 1, 3, 1, 2)
+
+        self.player_input = QLineEdit(ModSongs)
+        self.player_input.setObjectName(u"player_input")
+
+        self.gridLayout.addWidget(self.player_input, 6, 3, 1, 2)
+
+        self.stage_input = QLineEdit(ModSongs)
+        self.stage_input.setObjectName(u"stage_input")
+
+        self.gridLayout.addWidget(self.stage_input, 5, 3, 1, 2)
+
+        self.events_group = QGroupBox(ModSongs)
+        self.events_group.setObjectName(u"events_group")
+        self.verticalLayout = QVBoxLayout(self.events_group)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.label_9 = QLabel(self.groupBox)
-        self.label_9.setObjectName(u"label_9")
+        self.event_name_label = QLabel(self.events_group)
+        self.event_name_label.setObjectName(u"event_name_label")
 
-        self.verticalLayout.addWidget(self.label_9)
+        self.verticalLayout.addWidget(self.event_name_label)
 
-        self.comboBox_2 = QComboBox(self.groupBox)
-        self.comboBox_2.setObjectName(u"comboBox_2")
+        self.event_name_combobox = QComboBox(self.events_group)
+        self.event_name_combobox.setObjectName(u"event_name_combobox")
 
-        self.verticalLayout.addWidget(self.comboBox_2)
+        self.verticalLayout.addWidget(self.event_name_combobox)
 
-        self.label_10 = QLabel(self.groupBox)
-        self.label_10.setObjectName(u"label_10")
+        self.event_rename_label = QLabel(self.events_group)
+        self.event_rename_label.setObjectName(u"event_rename_label")
 
-        self.verticalLayout.addWidget(self.label_10)
+        self.verticalLayout.addWidget(self.event_rename_label)
 
-        self.lineEdit_8 = QLineEdit(self.groupBox)
-        self.lineEdit_8.setObjectName(u"lineEdit_8")
+        self.event_rename_input = QLineEdit(self.events_group)
+        self.event_rename_input.setObjectName(u"event_rename_input")
 
-        self.verticalLayout.addWidget(self.lineEdit_8)
+        self.verticalLayout.addWidget(self.event_rename_input)
 
-        self.pushButton_7 = QPushButton(self.groupBox)
-        self.pushButton_7.setObjectName(u"pushButton_7")
+        self.event_add_button = QPushButton(self.events_group)
+        self.event_add_button.setObjectName(u"event_add_button")
 
-        self.verticalLayout.addWidget(self.pushButton_7)
+        self.verticalLayout.addWidget(self.event_add_button)
 
-        self.pushButton_8 = QPushButton(self.groupBox)
-        self.pushButton_8.setObjectName(u"pushButton_8")
+        self.event_remove_button = QPushButton(self.events_group)
+        self.event_remove_button.setObjectName(u"event_remove_button")
 
-        self.verticalLayout.addWidget(self.pushButton_8)
+        self.verticalLayout.addWidget(self.event_remove_button)
 
-        self.listWidget_2 = QListWidget(self.groupBox)
-        self.listWidget_2.setObjectName(u"listWidget_2")
+        self.event_currentconfig_list = QListWidget(self.events_group)
+        self.event_currentconfig_list.setObjectName(u"event_currentconfig_list")
 
-        self.verticalLayout.addWidget(self.listWidget_2)
-
-
-        self.gridLayout.addWidget(self.groupBox, 7, 0, 1, 1)
-
-        self.lineEdit_5 = QLineEdit(ModSongs)
-        self.lineEdit_5.setObjectName(u"lineEdit_5")
-
-        self.gridLayout.addWidget(self.lineEdit_5, 4, 2, 1, 1)
-
-        self.lineEdit_4 = QLineEdit(ModSongs)
-        self.lineEdit_4.setObjectName(u"lineEdit_4")
-
-        self.gridLayout.addWidget(self.lineEdit_4, 3, 2, 1, 1)
-
-        self.lineEdit = QLineEdit(ModSongs)
-        self.lineEdit.setObjectName(u"lineEdit")
-
-        self.gridLayout.addWidget(self.lineEdit, 0, 2, 1, 1)
-
-        self.label_4 = QLabel(ModSongs)
-        self.label_4.setObjectName(u"label_4")
-
-        self.gridLayout.addWidget(self.label_4, 3, 1, 1, 1)
-
-        self.lineEdit_2 = QLineEdit(ModSongs)
-        self.lineEdit_2.setObjectName(u"lineEdit_2")
-
-        self.gridLayout.addWidget(self.lineEdit_2, 1, 2, 1, 1)
-
-        self.groupBox_3 = QGroupBox(ModSongs)
-        self.groupBox_3.setObjectName(u"groupBox_3")
-        self.formLayout = QFormLayout(self.groupBox_3)
-        self.formLayout.setObjectName(u"formLayout")
-        self.pushButton_2 = QPushButton(self.groupBox_3)
-        self.pushButton_2.setObjectName(u"pushButton_2")
-
-        self.formLayout.setWidget(0, QFormLayout.ItemRole.LabelRole, self.pushButton_2)
-
-        self.pushButton = QPushButton(self.groupBox_3)
-        self.pushButton.setObjectName(u"pushButton")
-
-        self.formLayout.setWidget(0, QFormLayout.ItemRole.FieldRole, self.pushButton)
-
-        self.checkBox_4 = QCheckBox(self.groupBox_3)
-        self.checkBox_4.setObjectName(u"checkBox_4")
-
-        self.formLayout.setWidget(1, QFormLayout.ItemRole.LabelRole, self.checkBox_4)
+        self.verticalLayout.addWidget(self.event_currentconfig_list)
 
 
-        self.gridLayout.addWidget(self.groupBox_3, 0, 0, 4, 1)
+        self.gridLayout.addWidget(self.events_group, 10, 0, 1, 2)
 
-        self.label_5 = QLabel(ModSongs)
-        self.label_5.setObjectName(u"label_5")
+        self.internalname_label = QLabel(ModSongs)
+        self.internalname_label.setObjectName(u"internalname_label")
 
-        self.gridLayout.addWidget(self.label_5, 4, 1, 1, 1)
+        self.gridLayout.addWidget(self.internalname_label, 1, 2, 1, 1)
 
+        self.diff_combobox = QComboBox(ModSongs)
+        self.diff_combobox.setObjectName(u"diff_combobox")
+
+        self.gridLayout.addWidget(self.diff_combobox, 2, 3, 1, 2)
+
+        self.stage_label = QLabel(ModSongs)
+        self.stage_label.setObjectName(u"stage_label")
+
+        self.gridLayout.addWidget(self.stage_label, 5, 2, 1, 1)
+
+#if QT_CONFIG(shortcut)
+        self.opponent_label.setBuddy(self.opponent_input)
+        self.gf_label.setBuddy(self.gf_input)
+        self.player_label.setBuddy(self.player_input)
+        self.note_rename_label.setBuddy(self.note_rename_input)
+        self.note_name_label.setBuddy(self.note_name_combobox)
+        self.name_label.setBuddy(self.name_input)
+        self.variants_label.setBuddy(self.variant_input)
+        self.diff_label.setBuddy(self.diff_combobox)
+        self.event_name_label.setBuddy(self.event_name_combobox)
+        self.event_rename_label.setBuddy(self.event_rename_input)
+        self.internalname_label.setBuddy(self.internalname_input)
+        self.stage_label.setBuddy(self.stage_input)
+#endif // QT_CONFIG(shortcut)
 
         self.retranslateUi(ModSongs)
 
@@ -228,40 +272,50 @@ class Ui_ModSongs(object):
 
     def retranslateUi(self, ModSongs):
         ModSongs.setWindowTitle(QCoreApplication.translate("ModSongs", u"Songs / Chart Tool", None))
-        self.label_6.setText(QCoreApplication.translate("ModSongs", u"Girlfriend:", None))
-        self.groupBox_2.setTitle(QCoreApplication.translate("ModSongs", u"NoteTypes Translation Settings", None))
-        self.label_7.setText(QCoreApplication.translate("ModSongs", u"Notetype:", None))
-        self.pushButton_5.setText(QCoreApplication.translate("ModSongs", u"Add Note Config", None))
-        self.pushButton_6.setText(QCoreApplication.translate("ModSongs", u"Remove Note Config", None))
-        self.checkBox_3.setText(QCoreApplication.translate("ModSongs", u"Remove it", None))
-        self.label_8.setText(QCoreApplication.translate("ModSongs", u"Rename to:", None))
-
-        __sortingEnabled = self.listWidget.isSortingEnabled()
-        self.listWidget.setSortingEnabled(False)
-        ___qlistwidgetitem = self.listWidget.item(0)
-        ___qlistwidgetitem.setText(QCoreApplication.translate("ModSongs", u"Default / Rename To \"customNameLOL\" / Remove it", None));
-        self.listWidget.setSortingEnabled(__sortingEnabled)
-
-        self.pushButton_4.setText(QCoreApplication.translate("ModSongs", u"Export as .FNFC", None))
-        self.label.setText(QCoreApplication.translate("ModSongs", u"Internal Name:", None))
-        self.label_2.setText(QCoreApplication.translate("ModSongs", u"Visible Name:", None))
-        self.pushButton_3.setText(QCoreApplication.translate("ModSongs", u"Add Song", None))
-        self.label_3.setText(QCoreApplication.translate("ModSongs", u"Stage:", None))
-        self.checkBox.setText(QCoreApplication.translate("ModSongs", u"Translate Events", None))
-        self.checkBox_2.setText(QCoreApplication.translate("ModSongs", u"Translate NoteTypes", None))
-        self.groupBox.setTitle(QCoreApplication.translate("ModSongs", u"Events Translation Settings", None))
-        self.label_9.setText(QCoreApplication.translate("ModSongs", u"Event Name:", None))
-        self.label_10.setText(QCoreApplication.translate("ModSongs", u"Rename To:", None))
-        self.pushButton_7.setText(QCoreApplication.translate("ModSongs", u"Add Event Config", None))
-        self.pushButton_8.setText(QCoreApplication.translate("ModSongs", u"Remove Event Config", None))
-        self.label_4.setText(QCoreApplication.translate("ModSongs", u"Player:", None))
-        self.groupBox_3.setTitle(QCoreApplication.translate("ModSongs", u"Importation Settings", None))
-        self.pushButton_2.setText(QCoreApplication.translate("ModSongs", u"Import from local Files (Not added yet)", None))
-        self.pushButton.setText(QCoreApplication.translate("ModSongs", u"Import from Mod", None))
+        self.opponent_label.setText(QCoreApplication.translate("ModSongs", u"Opponent:", None))
+        self.gf_label.setText(QCoreApplication.translate("ModSongs", u"Girlfriend:", None))
+        self.player_label.setText(QCoreApplication.translate("ModSongs", u"Player:", None))
+        self.import_group.setTitle(QCoreApplication.translate("ModSongs", u"Importation Settings", None))
+        self.importlocal_button.setText(QCoreApplication.translate("ModSongs", u"Import from local Files (Not added yet)", None))
+        self.import_button.setText(QCoreApplication.translate("ModSongs", u"Import from Mod", None))
 #if QT_CONFIG(whatsthis)
-        self.checkBox_4.setWhatsThis(QCoreApplication.translate("ModSongs", u"<html><head/><body><p>If true change the name to a managable format for the tool to make the event compatible with the rest of engines</p></body></html>", None))
+        self.renamedefault_check.setWhatsThis(QCoreApplication.translate("ModSongs", u"<html><head/><body><p>If true change the name to a managable format for the tool to try to make the event compatible with the rest of engines</p></body></html>", None))
 #endif // QT_CONFIG(whatsthis)
-        self.checkBox_4.setText(QCoreApplication.translate("ModSongs", u"Rename Default Events", None))
-        self.label_5.setText(QCoreApplication.translate("ModSongs", u"Opponent:", None))
+        self.renamedefault_check.setText(QCoreApplication.translate("ModSongs", u"Rename Default Events", None))
+        self.open_button.setText(QCoreApplication.translate("ModSongs", u"Open Song", None))
+        self.notetypes_group.setTitle(QCoreApplication.translate("ModSongs", u"NoteTypes Translation Settings", None))
+        self.note_addconfig_button.setText(QCoreApplication.translate("ModSongs", u"Add Note Config", None))
+        self.note_rename_label.setText(QCoreApplication.translate("ModSongs", u"Rename to:", None))
+        self.note_removeconfig_button.setText(QCoreApplication.translate("ModSongs", u"Remove Note Config", None))
+        self.note_name_label.setText(QCoreApplication.translate("ModSongs", u"Notetype:", None))
+
+        __sortingEnabled = self.note_settings_list.isSortingEnabled()
+        self.note_settings_list.setSortingEnabled(False)
+        ___qlistwidgetitem = self.note_settings_list.item(0)
+        ___qlistwidgetitem.setText(QCoreApplication.translate("ModSongs", u"Default / Rename To \"customNameLOL\" / Remove it", None));
+        self.note_settings_list.setSortingEnabled(__sortingEnabled)
+
+        self.note_remove_check.setText(QCoreApplication.translate("ModSongs", u"Remove it", None))
+        self.exportfnfc_button.setText(QCoreApplication.translate("ModSongs", u"Export as .FNFC", None))
+        self.translatenotes_check.setText(QCoreApplication.translate("ModSongs", u"Translate NoteTypes", None))
+        self.addsong_button.setText(QCoreApplication.translate("ModSongs", u"Add Song", None))
+        self.name_label.setText(QCoreApplication.translate("ModSongs", u"Visible Name:", None))
+        self.translateevents_check.setText(QCoreApplication.translate("ModSongs", u"Translate Events", None))
+#if QT_CONFIG(whatsthis)
+        self.variants_label.setWhatsThis(QCoreApplication.translate("ModSongs", u"<html><head/><body><p>This more for Vslice</p></body></html>", None))
+#endif // QT_CONFIG(whatsthis)
+        self.variants_label.setText(QCoreApplication.translate("ModSongs", u"Variant Tag: ", None))
+#if QT_CONFIG(whatsthis)
+        self.isvariant_check.setWhatsThis(QCoreApplication.translate("ModSongs", u"<html><head/><body><p>If CHECKED</p><p>-In vslice will have separate his data  (Something like the erect variants)</p><p>-In Codename will have separate voices files</p><p>-In Psych will separate the chart in other folder</p></body></html>", None))
+#endif // QT_CONFIG(whatsthis)
+        self.isvariant_check.setText(QCoreApplication.translate("ModSongs", u"Is a Variant", None))
+        self.diff_label.setText(QCoreApplication.translate("ModSongs", u"Difficult Selected: ", None))
+        self.events_group.setTitle(QCoreApplication.translate("ModSongs", u"Events Translation Settings", None))
+        self.event_name_label.setText(QCoreApplication.translate("ModSongs", u"Event Name:", None))
+        self.event_rename_label.setText(QCoreApplication.translate("ModSongs", u"Rename To:", None))
+        self.event_add_button.setText(QCoreApplication.translate("ModSongs", u"Add Event Config", None))
+        self.event_remove_button.setText(QCoreApplication.translate("ModSongs", u"Remove Event Config", None))
+        self.internalname_label.setText(QCoreApplication.translate("ModSongs", u"Internal Name:", None))
+        self.stage_label.setText(QCoreApplication.translate("ModSongs", u"Stage:", None))
     # retranslateUi
 

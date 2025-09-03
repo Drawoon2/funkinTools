@@ -22,6 +22,7 @@ class Character:
 	DAD = 0
 	BOYFRIEND = 1
 	GF = 2
+	EXTRA = 3
 	@staticmethod
 	def getName(id):
 		match id:
@@ -41,10 +42,12 @@ class Events:
 	CHANGE_CHARACTER = "(funkinTool)-changecharacter"
 	CHANGE_SCROLL_SPEED = "(funkinTool)-changescrollspeed"
 	ADD_ZOOM = "(funkinTool)-addzoom"
+	CHANGE_BUMP_INTERVAL = "(funkinTool)-changebumpinterval"
 
 class Notes:
 	ALT_ANIM = "(funkinTool)-altanim"
 	NO_ANIM = "(funkinTool)-noanim"
+	DEFAULT = "(funkinTool)-default" #For easy comparation
 class Camera:
 	HUD = "(funkinTool)-REFcamHUD"
 	GAME = "(funkinTool)-REFcamGame"

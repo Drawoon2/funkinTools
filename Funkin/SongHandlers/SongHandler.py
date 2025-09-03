@@ -1,7 +1,13 @@
 from Funkin.Song import Song
 from Funkin.ModFolder import ModFolder
+from Constants import Engine
 
 class SongHandler:
+    def __init__(self, engine:int = 0):
+        self.engine = engine
+        self.song:Song = None
+    def getEngine(self):
+        return self.engine
     #Import giving a mod and song name
     @staticmethod
     def importSong(modFolder:ModFolder, songName:str) -> Song:

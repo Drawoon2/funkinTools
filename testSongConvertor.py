@@ -11,8 +11,8 @@ psychMod = PsychMod("E:/ModsFNF/duedebtsbfmixv102/mods")
 #psychMod = PsychMod("D:\FNF shit\ModsFNFen creacion\PsychEngine para Charts\PsychEngine\mods\Memory-Merge-Inst")
 
 #Vslice test
-vsliceMod = VsliceMod("E:/ModsFNF/FNF OG (FNF-V-Slice)/FNF V-Slice 0.6.4/mods/Vs Nonsense V1.5")
-
+#vsliceMod = VsliceMod("E:/ModsFNF/FNF OG (FNF-V-Slice)/FNF V-Slice 0.6.4/mods/Vs Nonsense V1.5")
+vsliceMod = VsliceMod("E:\Descargas\SKY REBORN [THE PICO UPDATE]")
 #Codename gen
 codenameModgen = PsychMod("D:/Python Things/funkinTools/testEngines/Codename/mods/test")
 #Psych gen
@@ -21,14 +21,14 @@ psychModgen = PsychMod("D:/Python Things/funkinTools/testEngines/PsychEngine/mod
 vsliceModgen = VsliceMod("D:/Python Things/funkinTools/testEngines/FNF V-Slice 0.7.2/mods/Template")
 
 #song = importSong(vsliceMod, "baffled")
-song = SongHandlers.importSong(codenameMod, "overthrone")
+song = SongHandlers.importSong(vsliceMod, "sky")
 chart = song.getChart("hard")
 print(chart.getAllEventsName())
 print(chart.getAllNoteTypes())
 print(song.getDifficults())
-chart.renameNoteType({"Madness_NOTE_assets": "Hurt Note"})
-#chart.removeNoteType("Madness_NOTE_assets")
+#chart.renameNoteTypes({"Madness_NOTE_assets": "Hurt Note"})
+#chart.removeNoteTypes("Madness_NOTE_assets")
 print(chart.getAllNoteTypes())
-SongHandlers.exportSong(psychModgen, song, "hard")
+SongHandlers.exportSong(psychModgen, song, song.getDifficults())
 
-#SongHandlers.exportFNFC(song, "hard")
+#SongHandlers.exportFNFC(song, song.getDifficults())

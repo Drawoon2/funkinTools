@@ -2,6 +2,7 @@ DEFAULT_MOD_NAME = "Template"
 class SearchFormat:
 	IMAGE_FORMAT = "Image File (*.png);;Any file (*.*)"
 	JSON_FORMAT = "Json File (*.json);;Any file (*.*)"
+	FNFC_FORMAT = "FNF Chart File (*.fnfc);;Any file (*.*)"
 class Engine:
 	PSYCH = 0
 	CODENAME = 1

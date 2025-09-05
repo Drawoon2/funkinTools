@@ -1,9 +1,10 @@
-from PySide6.QtWidgets import QWidget
+from PySide6.QtWidgets import QWidget, QFileDialog
+from PySide6.QtCore import QDir
 from Funkin import Song, SongHandlers
-from Constants import Character
+from Constants import Character, Engine, SearchFormat
 
 from Funkin.ModFolder import VsliceMod, PsychMod, CodenameMod
-import UI
+import UI, Dialogs, Manager, Paths
 
 class ModSong(QWidget):
     def __init__(self, parent:QWidget = None):
@@ -12,14 +13,19 @@ class ModSong(QWidget):
         self.ui.setupUi(self)
         self.song:Song = None
         self.curDiff:str = None
-        self.noteSettings:dict = {}
+        self.noteSettings:dict[str, dict] = {}
         self.eventSettings:dict = {}
         codenameMod = CodenameMod("E:\ModsFNF\monsterofmonsterscodename\MonsterOfMonstersCODENAME/assets")
         song = SongHandlers.importSong(codenameMod, "Out-Of-Place")
+
         
+        self.ui.renamedefault_check.setChecked(True)
+        self.ui.open_button.pressed.connect(lambda: self.importFromMod(True))
+        self.ui.import_button.pressed.connect(self.importFromMod)
 
         self.ui.diff_combobox.currentTextChanged.connect(self.updateDiff)
         self.ui.addsong_button.pressed.connect(self.addSong)
+        self.ui.exportfnfc_button.pressed.connect(self.exportFNFC)
 
         self.ui.note_addconfig_button.pressed.connect(self.addNoteConfig)
         self.ui.note_removeconfig_button.pressed.connect(self.removeNoteConfig)
@@ -30,9 +36,20 @@ class ModSong(QWidget):
         self.ui.event_remove_button.pressed.connect(self.removeEventConfig)
 
         self.ui.translateevents_check.toggled.connect(self.toggleEventConfig)
+        self.toggleEventConfig(self.ui.translateevents_check.isChecked())
+
         self.ui.translatenotes_check.toggled.connect(self.toggleNoteConfig)
-        
+        self.toggleNoteConfig(self.ui.translatenotes_check.isChecked())
+
         self.setSong(song)
+
+    def importFromMod(self, fromManager:bool = False):
+        dialog = Dialogs.ImportSongMod(fromManager, self)
+        dialog.renameDefault = self.ui.renamedefault_check.isChecked()
+        result = dialog.exec()
+        if result == 1:
+            self.setSong(dialog.song)
+
     def toggleNoteConfig(self, value):
         self.ui.notetypes_group.setDisabled(not value)
     def toggleEventConfig(self, value):
@@ -102,10 +119,13 @@ class ModSong(QWidget):
     def updateUI(self):
         self.ui.internalname_input.setText(self.song.internName)
 
+        self.ui.diff_combobox.currentTextChanged.disconnect(self.updateDiff)
         self.ui.diff_combobox.clear()
         diffs = self.song.getDifficults()
         self.ui.diff_combobox.addItems(diffs)
-        self.ui.diff_combobox.setCurrentText(diffs[0])
+        self.updateDiff(diffs[0], True)
+
+        self.ui.diff_combobox.currentTextChanged.connect(self.updateDiff)
 
         self.ui.event_name_combobox.clear()
         self.ui.event_name_combobox.addItems(self.song.getEventsName())
@@ -113,13 +133,17 @@ class ModSong(QWidget):
         self.ui.note_name_combobox.clear()
         self.ui.note_name_combobox.addItems(self.song.getNotetypes())
 
-    def updateDiff(self, diff = None):
-        self.updateChart()
+    def updateDiff(self, diff = None, newSong:bool = False):
+        print(f"{diff=}")
+        if not newSong:
+            self.updateChart()
+        else:
+            self.ui.diff_combobox.setCurrentText(diff)
 
         self.curDiff = diff
         chart = self.song.getChart(self.curDiff)
         if chart is None:
-            print(f"diff {self.curDiff} not Found")
+            print(f"updateDiff: diff {self.curDiff} not Found")
             return
         self.ui.stage_input.setText(chart.stage)
         self.ui.name_input.setText(chart.songName)
@@ -130,9 +154,11 @@ class ModSong(QWidget):
         self.ui.isvariant_check.setChecked(chart.isVariant)
         self.ui.variant_input.setText(chart.variantTag or "")
     def updateChart(self):
+        if self.curDiff is None or self.curDiff == "":
+            return
         chart = self.song.getChart(self.curDiff)
         if chart is None:
-            print(f"diff {self.curDiff} not Found")
+            print(f"updateChart: diff {self.curDiff} not Found")
             return
         chart.stage = self.ui.stage_input.text()
         chart.songName = self.ui.name_input.text()
@@ -141,7 +167,39 @@ class ModSong(QWidget):
         chart.getLane(Character.BOYFRIEND).character = self.ui.player_input.text()
         chart.getLane(Character.GF).character = self.ui.gf_input.text()
         chart.isVariant = self.ui.isvariant_check.isChecked()
-        chart.variantTag = self.ui.variant_input.text()
+        if chart.isVariant:
+            chart.variantTag = self.ui.variant_input.text()
+        else:
+            chart.variantTag = None
+    def applySongConfig(self):
+        self.updateChart()
+        toRemove = []
+        toRenameNotetype = {}
+        if self.ui.translatenotes_check.isChecked():
+            for noteType, data in self.noteSettings.items():
+                if data.get("newName") is not None:
+                    toRenameNotetype[noteType] = data.get("newName")
+                if data.get("removeIt", False):
+                    toRemove.append(noteType)
+        toRenameEvents = {}
+        if self.ui.translateevents_check.isChecked():
+            toRenameEvents = self.eventSettings
+            
+        for diff, chart in self.song.charts.items():
+            chart.removeNoteTypes(toRemove)
+            chart.renameNoteTypes(toRenameNotetype)
+            chart.renameEvents(toRenameEvents)
     def addSong(self):
-        pass
+        self.applySongConfig()
+        mod = Manager.instance.modFolder
+        if mod.getEngine() == Engine.CODENAME:
+            print("Isn't added yet")
+            return
+        SongHandlers.exportSong(mod, self.song, self.song.getDifficults())
+    def exportFNFC(self):
+        self.applySongConfig()
+        defaultName = Paths.join(QDir.currentPath(), f"{self.song.internName}.fnfc")
+        path, filter = QFileDialog.getSaveFileName(self, "Save .fnfc", defaultName, SearchFormat.FNFC_FORMAT)
+
+        SongHandlers.exportFNFC(self.song, self.song.getDifficults(), path)
         

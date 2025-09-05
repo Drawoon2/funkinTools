@@ -1,5 +1,5 @@
 from .SongHandler import SongHandler
-from Funkin.Song import Song, ChartEvent, Chart
+from Funkin.Song import Song, ChartEvent, Chart, ChartLane
 from Funkin.ModFolder import VsliceMod
 from Constants import Character, Events, Engine, Notes
 import Paths, zipfile
@@ -48,8 +48,9 @@ class VSliceHandler(SongHandler):
     @staticmethod
     def sortNotes(note):
         return note["t"]
-    def generateChart(self, song:Song, diff:str = "hard"):
-        chartdata = VSliceHandler.getChartBase()
+    def generateChart(self, song:Song, diff:str = "hard", chartdata:dict = None):
+        if chartdata is None:
+            chartdata = VSliceHandler.getChartBase()
         chart = song.getChart(diff)
         diffChart = []
         for lane in range(2):
@@ -67,118 +68,220 @@ class VSliceHandler(SongHandler):
                 diffChart.append(addNote)
         
         diffChart.sort(key=VSliceHandler.sortNotes)
-        chartdata["notes"][diff] = diffChart
-        chartdata["scrollSpeed"][diff] = chart.scrollSpeed
+        chartdata["notes"][chart.getDifficult()] = diffChart
+        chartdata["scrollSpeed"][chart.getDifficult()] = chart.scrollSpeed
 
         chartdata["events"] = self.exportEvents(chart)
         return chartdata
-    def generateMetadata(self, song:Song, diff:str = "hard"):
-        metadata = VSliceHandler.getMetaBase()
+    def generateMetadata(self, song:Song, diff:str = "hard", metadata:dict = None):
+        if metadata is None:
+            metadata = VSliceHandler.getMetaBase()
         chart = song.getChart(diff)
         characterList = {}
-        characterList["player"] = chart.getLane(Character.BOYFRIEND).character
-        characterList["opponent"] = chart.getLane(Character.DAD).character
+        bfLane = chart.getLane(Character.BOYFRIEND)
+        dadLane = chart.getLane(Character.DAD)
+
+        characterList["player"] = bfLane.character
+        if bfLane.getMeta("vocalSuffix") is not None:
+            characterList["playerVocals"] = [bfLane.getMeta("vocalSuffix")]
+
+        characterList["opponent"] = dadLane.character
+        if dadLane.getMeta("vocalSuffix") is not None:
+            characterList["opponentVocals"] = [dadLane.getMeta("vocalSuffix")]
+
         characterList["girlfriend"] = chart.getLane(Character.GF).character
-        characterList["girlfriend"] = chart.getLane(Character.GF).character
+
+        
         metadata["playData"]["characters"] = characterList
         metadata["playData"]["stage"] = chart.stage
-        metadata["playData"]["difficulties"].append(diff)
-        metadata["playData"]["ratings"][diff] = 5
+        metadata["playData"]["difficulties"].append(chart.getDifficult())
+        metadata["playData"]["ratings"][chart.getDifficult()] = chart.getMeta("rating", 5)
         metadata["songName"] = chart.songName
         metadata["timeChanges"][0]["bpm"] = chart.bpm
         return metadata
-    def saveMusic(self, path, song:Song, diff:str = "hard"):
+    def saveMusic(self, path:str, song:Song, diff:str = "hard"):
         chart = song.getChart(diff)
-        #Localized voices
-        if len(chart.songVoices) > 1:
-            for i in range(2): #VSlice have a max of 2 voices per song
-                file = chart.songVoices[i]
-                newName = f"Voices-{chart.getLane(i).character}.ogg"
-                Paths.copyFile(file, f"{path}/{newName}")
-        elif len(chart.songVoices) > 0:
-            #VSlice doesn't play Voices.ogg if only there is 1 voices file
-            Paths.copyFile(chart.songVoices[0], f"{path}/Voices-{chart.getLane(Character.DAD).character}.ogg")
-        #Localized insts
-        Paths.copyFile(chart.songInst, f"{path}/Inst.ogg")
+        variant = ""
+        if chart.isVariant:
+            variant = chart.variantTag
 
-    def exportSong(self, modFolder:VsliceMod, song:Song, diff:str = "hard"):
+        instSuffix = chart.getMeta("instSuffix", "")
+        if instSuffix != "":
+            instSuffix = f"-{instSuffix}" 
+        #Localized insts
+        Paths.copyFile(chart.songInst, f"{path}/Inst{instSuffix}.ogg")
+
+        #Localized voices
+        if len(chart.songVoices) > 0:
+            Paths.copyFile(chart.songVoices[0], f"{path}/{self.getVoicesName(chart.getLane(Character.DAD), variant)}")
+
+        if len(chart.songVoices) > 1:
+            Paths.copyFile(chart.songVoices[1], f"{path}/{self.getVoicesName(chart.getLane(Character.BOYFRIEND), variant)}")
+
+        
+    def getVoicesName(self, lane:ChartLane, variant:str = ""):
+        suffix = lane.character
+        if lane.getMeta("vocalSuffix") is not None:
+            suffix = lane.getMeta("vocalSuffix")
+        
+        if variant != "":
+            variant = f"-{variant}"
+        newName = f"Voices-{suffix}{variant}.ogg"
+        
+        return newName
+    def exportSong(self, modFolder:VsliceMod, song:Song, diffs:list = []) -> bool:
         Paths.createFolder(modFolder.getPath(f"data/songs"))
         songDataPath = modFolder.getPath(f"data/songs/{song.internName}")
         songPath = modFolder.getPath(f"songs/{song.internName}")
         Paths.createFolder(songDataPath)
         Paths.createFolder(songPath)
-
-        metadata = self.generateMetadata(song, diff)
-        chartdata = self.generateChart(song, diff)
-        self.saveMusic(songPath, song, diff)
-
-        Paths.saveJson(f"{songDataPath}/{song.internName}-chart.json", chartdata)
-        Paths.saveJson(f"{songDataPath}/{song.internName}-metadata.json", metadata)
+        self.exportData(song, diffs, songPath, songDataPath)
 
         return True
-    def exportFNFC(self, song:Song, diff:str = "hard", path:str = "temp"):
+    def exportData(self, song:Song, diffs:list[str], songPath:str, songDataPath:str):
+        metadatas = {}
+        chartdatas = {}
+        for diff in diffs:
+            chart = song.getChart(diff)
+            variant = "default"
+            if chart.isVariant:
+                variant = chart.variantTag
+
+            metadata = metadatas.get(variant)
+            chartdata = chartdatas.get(variant)
+            
+            metadatas[variant] = self.generateMetadata(song, diff, metadata)
+            chartdatas[variant] = self.generateChart(song, diff, chartdata)
+            self.saveMusic(songPath, song, diff)
+        
+        variants = list(metadatas.keys())
+        variants.remove("default")
+        metadata = metadatas["default"]
+        metadata["playData"]["songVariations"] = variants
+        for variant, metadata in metadatas.items():
+            Paths.saveJson(f"{songDataPath}/{song.internName}-metadata{VSliceHandler.getSuffix(variant)}.json", metadata)
+
+        for variant, metadata in chartdatas.items():
+            Paths.saveJson(f"{songDataPath}/{song.internName}-chart{VSliceHandler.getSuffix(variant)}.json", metadata)
+
+    @staticmethod
+    def getSuffix(suffix):
+        if suffix == "default":
+            suffix = ""
+        if suffix != "":
+            suffix = f"-{suffix}"
+        return suffix
+    def exportFNFC(self, song:Song, diffs:list[str] = ["hard"], filePath:str = None):
         temp = f"temp/{song.internName}"
         Paths.createFolder(temp)
-        metadata = self.generateMetadata(song, diff)
-        chartdata = self.generateChart(song, diff)
-        self.saveMusic(temp, song, diff)
-        Paths.saveJson(f"{temp}/{song.internName}-chart.json", chartdata)
-        Paths.saveJson(f"{temp}/{song.internName}-metadata.json", metadata)
-        Paths.saveJson(f"{temp}/manifest.json", VSliceHandler.getManifest(song.internName))
 
-        filePath = Paths.join(path, f"{song.internName}.fnfc")
+        self.exportData(song, diffs, temp, temp)
+
+
+        if filePath is None:
+            filePath = f"temp/{song.internName}.fnfc"
         with zipfile.ZipFile(filePath, "w") as zip:
             for file in Paths.listFolder(temp):
                 fullPath = f"{temp}/{file}"
                 zip.write(fullPath, file)
 
     def importSong(self, modFolder:VsliceMod, songName:str) -> Song:
-        songDataFolder = modFolder.getPath(f"data/songs/{songName}")
-        songFolder = modFolder.getPath(f"songs/{songName}")
-
-        defaultChart = Paths.getJsonData(modFolder.getPath(f"data/songs/{songName}/{songName}-chart.json"))
-        defaultMeta = Paths.getJsonData(modFolder.getPath(f"data/songs/{songName}/{songName}-metadata.json"))
-        newSong = Song(songName)
-        #Events
-        events = self.importEvents(defaultChart)
+        self.songDataFolder = modFolder.getPath(f"data/songs/{songName}")
+        self.songFolder = modFolder.getPath(f"songs/{songName}")
+        defaultChart = Paths.getJsonData(Paths.join(self.songDataFolder, f"{songName}-chart.json"))
+        defaultMeta = Paths.getJsonData(Paths.join(self.songDataFolder, f"{songName}-metadata.json"))
+        self.song = Song(songName)
+        Paths.join(self.songDataFolder, f"{songName}-metadata.json")
         #get Audio Files    
-        voices = self.getVoices(songFolder, defaultMeta)
-        insts = self.getInst(songFolder, defaultMeta)
+        voices = self.getVoices(defaultMeta)
+        insts = self.getInst(defaultMeta)
 
         metaData = self.getMetaData(defaultMeta, defaultChart)
+        #Events
+        events = self.importEvents(defaultChart)
         #Chart 
         characters:dict = defaultMeta["playData"]["characters"]
         bpm = defaultMeta["timeChanges"][0]["bpm"]
         for diff in defaultMeta["playData"]["difficulties"]:
-            
-            chartNotes = defaultChart["notes"][diff]
-            chart = newSong.addChart(diff)
-            chart.scrollSpeed = defaultChart["scrollSpeed"][diff]
-            chart.addLane(characters["opponent"], Character.DAD)
-            chart.addLane(characters["player"], Character.BOYFRIEND)
-            chart.addLane(characters["girlfriend"], Character.GF)
-            for note in chartNotes:
-                noteData = note["d"] % 4
-                lane = chart.getLane(Character.BOYFRIEND)
-                if note["d"] > 3:
-                    lane = chart.getLane(Character.DAD)
-                
-                lane.addNote(note["t"], noteData, note.get("l", 0), note.get("k", Notes.DEFAULT))
+            chart = self.importChart(diff, defaultChart, characters)
             chart.events = events
             chart.bpm = bpm
             chart.songVoices = voices
 
-            variant = characters.get("instrumental", "")
-            if variant != "":
-                variant = "-" + variant
             chart.songInst = insts
             chart.stage = defaultMeta["playData"]["stage"]
             chart.setMetaFromDict(metaData)
             chart.songName = defaultMeta["songName"]
+            chart.setMeta("rating", defaultMeta["playData"]["ratings"][diff])
+            chart.setMeta("instSuffix", characters["instrumental"])
+
+        #Variants
+        for variant in defaultMeta["playData"]["songVariations"]:
+            variantChart = Paths.getJsonData(Paths.join(self.songDataFolder, f"{songName}-chart-{variant}.json"))
+            variantMeta = Paths.getJsonData(Paths.join(self.songDataFolder, f"{songName}-metadata-{variant}.json"))
+
+            variant_voices = self.getVoices(variantMeta, variant)
+            variant_insts = self.getInst(variantMeta)
+            
+
+            variant_metaData = self.getMetaData(variantMeta, variantChart)
+            variant_bpm = variantMeta["timeChanges"][0]["bpm"]
+            variant_events = self.importEvents(variantChart)
+            variant_characters:dict = variantMeta["playData"]["characters"]
+
+            for diff in variantMeta["playData"]["difficulties"]:
+                
+                chart = self.importChart(diff, variantChart, variant_characters, variant)
+                chart.events = variant_events
+                chart.bpm = variant_bpm
+                chart.songVoices = variant_voices
+
+                chart.songInst = variant_insts
+                chart.stage = variantMeta["playData"]["stage"]
+                chart.setMetaFromDict(variant_metaData)
+                chart.songName = variantMeta["songName"]
+                chart.setMeta("rating", variantMeta["playData"]["ratings"][diff])
+                chart.setMeta("instSuffix", variant_characters["instrumental"])
+
+                chart.isVariant = True
+                chart.variantTag = variant
+
+
         
         #Maybe Save Variants Too
 
-        return newSong
+        return self.song
+    def importChart(self, diff:str, chartData:dict, character:dict, variant:str = None) -> Chart:
+        chartNotes = chartData["notes"][diff]
+        if variant is not None:
+            chart = self.song.addChart(f"{diff}-{variant}")
+        else:
+            chart = self.song.addChart(diff)
+        
+        chart.scrollSpeed = chartData["scrollSpeed"][diff]
+
+        dadLane = chart.addLane(character["opponent"], Character.DAD)
+        opponentVocals = character.get("opponentVocals", [])
+        if len(opponentVocals) > 0:
+            dadLane.setMeta("vocalSuffix", opponentVocals[0])
+
+        bfLane = chart.addLane(character["player"], Character.BOYFRIEND)
+        playerVocals = character.get("playerVocals", [])
+        if len(playerVocals) > 0:
+            bfLane.setMeta("vocalSuffix", playerVocals[0])
+
+        chart.addLane(character["girlfriend"], Character.GF)
+        for note in chartNotes:
+            noteData = note["d"] % 4
+            lane = chart.getLane(Character.BOYFRIEND)
+            if note["d"] > 3:
+                lane = chart.getLane(Character.DAD)
+                
+            lane.addNote(note["t"], noteData, note.get("l", 0), note.get("k", Notes.DEFAULT))
+        
+
+
+        return chart
 
     def getMetaData(self, metaData:dict, chartData:dict) -> dict:
         meta = {}
@@ -189,34 +292,58 @@ class VSliceHandler(SongHandler):
         meta["chartVersion"] = chartData["version"]
         meta["chartGeneratedBy"] = chartData["generatedBy"]
         return meta
-    def getVoices(self, songFolder:str, metaData:dict) -> list:
+    def getVoices(self, metaData:dict, variant:str = None) -> list:
         voices = []
         characters:dict = metaData["playData"]["characters"]
-        def checkVoice(suffix):
-            return Paths.exists(Paths.join(songFolder, f"Voices-{suffix}.ogg"))
-        def getVoicePath(character:str, vocals:list[str] = None):
-            suffix = ""
-            if vocals is not None:
-                for vocal in vocals:
-                    if checkVoice(vocal):
-                        suffix = vocal
-                        break
-            else:
-                suffix = character
-
-            if not checkVoice(vocal):
-                print(f"VOICES for {character} in {metaData["songName"]} not found")
-                return
-                
-            return Paths.join(songFolder, f"Voices-{suffix}.ogg")
-        voices.insert(Character.BOYFRIEND, getVoicePath("player", characters.get("playerVocals")))
-        voices.insert(Character.DAD, getVoicePath("opponent", characters.get("opponentVocals")))
+        voices.insert(Character.BOYFRIEND, self.getVoicePath(metaData, "player", characters.get("playerVocals"), variant))
+        voices.insert(Character.DAD, self.getVoicePath(metaData, "opponent", characters.get("opponentVocals"), variant))
         return voices
-    def getInst(self, songFolder:str, metaData:dict):
+
+    def getVoicePath(self, metaData, character:str, vocals:list[str] = None, variant:str = None):
+        characterName = metaData["playData"]["characters"][character]
+        suffix = ""
+        if variant is not None and variant != "" and variant != "default":
+            suffix = f"-{variant}"
+        if vocals is None:
+            charid = characterName
+            charVoice = Paths.join(self.songFolder, f"Voices-{charid}{suffix}.ogg")
+            while not Paths.exists(charVoice):
+                suffixes = charid.split("-")
+                suffixes.pop()
+                charid = "-".join(suffixes)
+                if charid == "":
+                    charVoice = None
+                    break
+                charVoice = Paths.join(self.songFolder, f"Voices-{charid}{suffix}.ogg")
+
+            if charVoice is None:
+                charid = characterName
+                charVoice = Paths.join(self.songFolder, f"Voices-{charid}.ogg")
+                while not Paths.exists(charVoice):
+                    suffixes = charid.split("-")
+                    suffixes.pop()
+                    charid = "-".join(suffixes)
+                    if charid == "":
+                        charVoice = None
+                        break
+                    charVoice = Paths.join(self.songFolder, f"Voices-{charid}.ogg")
+            if charVoice is None:
+                print(f"VOICES for {characterName} in {metaData["songName"]} not found")
+                return 
+            return charVoice
+        else:
+            for vocal in vocals:
+                charVoice = Paths.join(self.songFolder, f"Voices-{vocal}{suffix}.ogg")
+                if Paths.exists(charVoice):
+                    return charVoice
+
+        print(f"VOICES for {characterName} in {metaData["songName"]} not found")
+        return
+    def getInst(self, metaData:dict):
         variant = metaData["playData"]["characters"].get("instrumental", "")
         if variant != "":
             variant = "-" + variant
-        return Paths.join(songFolder, f"Inst{variant}.ogg")
+        return Paths.join(self.songFolder, f"Inst{variant}.ogg")
     
     def exportEvents(self, chart:Chart) -> list:
         events = []
@@ -226,7 +353,7 @@ class VSliceHandler(SongHandler):
             match name:
                 case Events.CHANGE_BUMP_INTERVAL:
                     name = "SetCameraBop"
-                    args["intensity"] = event.getValue("stregth")
+                    args["intensity"] = event.getValue("strength")
                     interval = event.getValue("interval")
                     offset = event.getValue("offset")
                     if event.getValue("unit") is not None:
@@ -298,22 +425,30 @@ class VSliceHandler(SongHandler):
             name = event["e"]
             args = event["v"]
             
-            match name:
-                case "FocusCamera":
-                    name = Events.CAMERA_FOCUS
-                    if type(args) is not dict:
-                        args = {"char": args}
-
-                    match args["char"]:
-                        case 1:
-                            args["char"] = Character.DAD
-                        case 0:
-                            args["char"] = Character.BOYFRIEND
-
-            if type(args) is not dict:
-                args = {"value1": args}
+            name, args = self.renameEvents(name, args)
             newEvent = ChartEvent(strum, name, args)
             events.append(newEvent)
         return events
-    
+    def renameEvents(self, name:str, args:dict):
+        if not self.renameDefaultEvents:
+            if type(args) is not dict:
+                args = {"value1": args}
+            return name, args
+        
+        match name:
+            case "FocusCamera":
+                name = Events.CAMERA_FOCUS
+                if type(args) is not dict:
+                    args = {"char": args}
+
+                match args["char"]:
+                    case 1:
+                        args["char"] = Character.DAD
+                    case 0:
+                        args["char"] = Character.BOYFRIEND
+        if type(args) is not dict:
+            args = {"value1": args}
+
+        return name, args
+
     

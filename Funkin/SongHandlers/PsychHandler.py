@@ -1,5 +1,5 @@
 from .SongHandler import SongHandler
-from Funkin.Song import Song, ChartEvent
+from Funkin.Song import Song, ChartEvent, Chart
 from Funkin.ModFolder import PsychMod
 from Constants import Character, Events, Notes, Engine
 import Paths
@@ -142,6 +142,12 @@ class PsychHandler(SongHandler):
                 value1 = event[1]
                 value2 = event[2]
                 args = {}
+                if not self.renameDefaultEvents:
+                    args["value1"] = value1
+                    args["value2"] = value2
+                    event = ChartEvent(strum, name, args)
+                    events.append(event)
+                    continue
                 match name:
                     case "Play Animation":
                         name = Events.PLAY_ANIMATION
@@ -159,65 +165,73 @@ class PsychHandler(SongHandler):
                         args["speed"] = value1
                         args["multiplive"] = True
                         args["timeSec"] = value2
+                    case __:
+                        args["value1"] = value1
+                        args["value2"] = value2
                 event = ChartEvent(strum, name, args)
                 events.append(event)
 
 
         return events
-    def exportSong(self, modFolder:PsychMod, song:Song, diff) -> bool:
+    def exportSong(self, modFolder:PsychMod, song:Song, diffs:list[str] = []) -> bool:
         Paths.createFolder(modFolder.getPath("songs"))
-        Paths.createFolder(modFolder.getPath(f"songs/{song.internName}"))
         Paths.createFolder(modFolder.getPath("data"))
-        Paths.createFolder(modFolder.getPath(f"data/{song.internName}"))
 
-        chart = song.charts.get(diff)
-        #copy the voices and inst
-        Paths.copyFile(chart.songInst, modFolder.getPath(f"songs/{song.internName}/Inst.ogg"))
+        
+        for diff in diffs:
+            chartData = self.createChart(song, diff)
+            chart = song.getChart(diff)
+            songName = f"{song.internName}"
+            if chart.isVariant:
+                songName = f"{song.internName}-{chart.variantTag}"
+
+            songDataPath:str = modFolder.getPath(f"data/{songName}")
+            songPath:str = modFolder.getPath(f"songs/{songName}")
+            
+            Paths.createFolder(songDataPath)
+            Paths.createFolder(songPath)
+
+            diffTag = chart.getDifficult()
+            if diffTag == "normal":
+                diffTag = ""
+            else:
+                diffTag = f"-{diffTag}"
+            
+            Paths.saveJson(Paths.join(songDataPath, f"{songName}{diffTag}.json"), chartData)
+            self.saveMusic(song, diff, songPath)
+            
+
+        return True
+    
+    def saveMusic(self, song:Song, diff:str, songPath:str):
+        chart = song.getChart(diff)
+
+        Paths.copyFile(chart.songInst, Paths.join(songPath, "Inst.ogg"))
 
         if len(chart.songVoices) > 1:
-            for char, voice in enumerate(chart.songVoices):
-                suffix = ""
-                match char:
-                    case Character.DAD:
-                        suffix = "-Opponent"
-                    case Character.BOYFRIEND:
-                        suffix = "-Player"
-                    case __:
-                        suffix = "-" + chart.getLane(char).character
-                Paths.copyFile(voice, modFolder.getPath(f"songs/{song.internName}/Voices{suffix}.ogg"))
+            Paths.copyFile(chart.songVoices[Character.DAD], Paths.join(songPath, "Voices-Opponent.ogg"))
+            Paths.copyFile(chart.songVoices[Character.BOYFRIEND], Paths.join(songPath, "Voices-Player.ogg"))
         elif len(chart.songVoices) > 0:
-            Paths.copyFile(chart.songVoices[0], modFolder.getPath(f"songs/{song.internName}/Voices.ogg"))
+            Paths.copyFile(chart.songVoices[0], Paths.join(songPath, "Voices.ogg"))
 
-        #Chart Convertion
+    def createChart(self, song:Song, diff:str) -> dict:
+        chart = song.getChart(diff)
         chartFile = PsychHandler.getSongBase()
         chartSong = chartFile["song"]
-        chartSong["song"] = chart.songName
+        if chart.isVariant:
+            songName = f"{song.internName} {chart.variantTag}".title()
+            chartSong["song"] = songName
+        else:
+            chartSong["song"] = chart.songName
         chartSong["needsVoices"] = len(chart.songVoices) > 0
         chartSong["speed"] = chart.scrollSpeed
         chartSong["bpm"] = chart.bpm
         chartSong["player2"] = chart.getLane().character
         chartSong["player1"] = chart.getLane(Character.BOYFRIEND).character
         chartSong["gfVersion"] = chart.getLane(Character.GF).character or "gf"
-        sectionsLength = ((60 / chart.bpm) * 1000) * 4
+
         notes = []
-        def resizeSectionsTo(num:int):
-            if len(notes) < num + 1:
-                for setionsToAdd in range(num - len(notes) + 1):
-                    notes.append(PsychHandler.getSection())
-                print(f"NUM SECTION: {len(notes)}")
-        events = []
-        def addEvent(strum:float, name:str, value1:str = "", value2:str = ""):
-            event = [
-                strum,
-                [
-                    [
-                        name,
-                        value1,
-                        value2
-                    ]
-                ]
-            ]
-            events.append(event)
+        sectionsLength = ((60 / chart.bpm) * 1000) * 4
         for i in range(3):
             lane = chart.getLane(i)
             #print(len(lane.notes))
@@ -238,16 +252,35 @@ class PsychHandler(SongHandler):
 
                 sectionIdx = int(strum // sectionsLength)
                 #print(f"Division: {strum / sectionsLength} / Index: {sectionIdx} / Section Length: {sectionsLength} / Strum: {strum}")
-                resizeSectionsTo(sectionIdx)
+                PsychHandler.resizeSectionsTo(notes, sectionIdx)
                 notes[sectionIdx]["sectionNotes"].append(newNote)
-                
-        
+
         def sortFunc(note): 
             return note[0]
         
         for section in notes:
             section["sectionNotes"].sort(key = sortFunc)
 
+        events = self.exportEvents(chart, notes)
+        chartSong["notes"] = notes
+        chartSong["events"] = events
+        return chartFile
+
+    def exportEvents(self, chart:Chart, notes:list) -> list:
+        eventsData = []
+        def addEvent(strum:float, name:str, value1:str = "", value2:str = ""):
+            event = [
+                strum,
+                [
+                    [
+                        name,
+                        value1,
+                        value2
+                    ]
+                ]
+            ]
+            eventsData.append(event)
+        sectionsLength = ((60 / chart.bpm) * 1000) * 4
         lastFocusIdx = 0
         forceCameraZoomActive = False
         for event in chart.events:
@@ -283,7 +316,7 @@ class PsychHandler(SongHandler):
                         sectionIdx = int(event.strum // sectionsLength)
                         
                         mustHitSection = character == Character.BOYFRIEND
-                        resizeSectionsTo(sectionIdx)
+                        PsychHandler.resizeSectionsTo(notes, sectionIdx)
                         notes[sectionIdx]["mustHitSection"] = mustHitSection
                         #print(f"newFocus {mustHitSection} / {sectionIdx}")
                         lastHitSection = notes[lastFocusIdx]["mustHitSection"]
@@ -310,10 +343,10 @@ class PsychHandler(SongHandler):
                     value2 = event.getValue("value2", "")
 
                     addEvent(event.strum, event.name, value1, value2)
-        chartSong["notes"] = notes
-        chartSong["events"] = events
-        suffix = "-" + diff
-        if diff == "normal":
-            suffix = ""
-        Paths.saveJson(modFolder.getPath(f"data/{song.internName}/{song.internName}{suffix}.json"), chartFile)
-        return True
+        return eventsData
+    @staticmethod
+    def resizeSectionsTo(notes:list, num:int):
+        if len(notes) < num + 1:
+            for setionsToAdd in range(num - len(notes) + 1):
+                notes.append(PsychHandler.getSection())
+            print(f"NUM SECTION: {len(notes)}")

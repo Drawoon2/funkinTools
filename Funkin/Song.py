@@ -23,6 +23,8 @@ class Song:
         for key, chart in self.charts.items():
             notesList += chart.getAllNoteTypes()
         return list(dict.fromkeys(notesList).keys())
+    def __repr__(self):
+        return f"(Song) internName = {self.internName}"
                 
         
         
@@ -40,6 +42,10 @@ class Chart:
         self.difficult:str = diff
         self.isVariant = False
         self.variantTag:str = None
+    def getDifficult(self):
+        if self.isVariant:
+            return self.difficult.removesuffix(f"-{self.variantTag}")
+        return self.difficult
     def getMeta(self, key:str, ifNone = None):
         return self.metadata.get(key, ifNone)
     def setMeta(self, key:str, value):
@@ -61,20 +67,26 @@ class Chart:
     def sortEvents(self):
         self.events.sort(key=Chart.sortEventsFunc)
     def renameEvents(self, renameDict:dict = None): # {oldName: newName}
+        if renameDict is None or len(renameDict) < 1:
+            return
         for event in self.events:
             if renameDict.get(event.name) is None:
                 continue
             event.name = renameDict.get(event.name)
-    def removeNoteType(self, name):
+    def removeNoteTypes(self, nameList:list = None):
+        if nameList is None or len(nameList) < 1:
+            return
         for lane in self.lanes:
             toRemoveNotes = []
             for note in lane.notes:
-                if note["noteType"] == name:
+                if note["noteType"] in nameList:
                     toRemoveNotes.append(note)
             for remove in toRemoveNotes:
                 lane.notes.remove(remove)
         pass
-    def renameNoteType(self, renameDict:dict = None): # {oldName: newName}
+    def renameNoteTypes(self, renameDict:dict = None): # {oldName: newName}
+        if renameDict is None or len(renameDict) < 1:
+            return
         for lane in self.lanes:
             for note in lane.notes:
                 if renameDict.get(note["noteType"]) is None:

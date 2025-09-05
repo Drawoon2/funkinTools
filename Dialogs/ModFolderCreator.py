@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QDialog, QFileDialog
+from PySide6.QtWidgets import QDialog, QFileDialog, QWidget
 from PySide6.QtCore import QDir
 from Constants import Engine
 import UI
@@ -6,7 +6,7 @@ from Funkin.ModFolder import PsychMod, CodenameMod, VsliceMod, ModFolder
 
 
 class ModFolderCreator(QDialog):
-    def __init__(self, parent = None):
+    def __init__(self, parent:QWidget = None):
         super().__init__(parent)
         self.mod:ModFolder = None
         self.ui = UI.Ui_Dialog_ModFolderCreator()

@@ -32,6 +32,8 @@ class CodenameHandler(SongHandler):
         if len(params) < index + 1:
             return default
         return params[index]
+    def renameParam(self, rename, original):
+        return self.renameDefaultEvents and rename or original
     def customEventsParamParser(self, event:str, params:list) -> dict:
         eventDataPath = Paths.join(self.eventsFolder, f"{event}.json")
         newparams:dict = {}
@@ -61,56 +63,102 @@ class CodenameHandler(SongHandler):
             params = event["params"]
             newparams = {}
             match event["name"]:
+                case "Alt Animation Toggle":
+                    newparams[self.renameParam("altSing", "Enable On Sing Poses")] = self.getEventParam(event, 0, True)
+                    newparams[self.renameParam("altIdle", "Enable On Idle")] = self.getEventParam(event, 1, True)
+                    newparams[self.renameParam("character", "Strumline")] = self.getEventParam(event, 2, 0)
+                case "HScript Call":
+                    newparams[self.renameParam("func", "Function Name")] = self.getEventParam(event, 0, "myFunc")
+                    newparams[self.renameParam("params", "Function Parameters (String split with commas)")] = self.getEventParam(event, 1, "")
                 case "Play Animation":
-                    name = Events.PLAY_ANIMATION
+                    if self.renameDefaultEvents:
+                        name = Events.PLAY_ANIMATION
                     
-                    newparams["character"] = self.getEventParam(event, 0, Character.DAD)
-                    newparams["animation"] = self.getEventParam(event, 1, "animation")
-                    newparams["forced"] = self.getEventParam(event, 2, True)
-                    newparams["context"] = self.getEventParam(event, 3, "NONE")
+                    newparams[self.renameParam("character", "Character")] = self.getEventParam(event, 0, Character.DAD)
+                    newparams[self.renameParam("animation", "Animation")] = self.getEventParam(event, 1, "animation")
+                    newparams[self.renameParam("forced", "Is forced?")] = self.getEventParam(event, 2, True)
+                    newparams[self.renameParam("context", "Animation Context")] = self.getEventParam(event, 3, "NONE")
                 case "Camera Modulo Change":
-                    name = Events.CHANGE_BUMP_INTERVAL
-                    newparams["interval"] = self.getEventParam(event, 0, 4)
-                    newparams["stregth"] = self.getEventParam(event, 1, 1)
-                    newparams["unit"] = self.getEventParam(event, 2, "BEAT")
-                    newparams["offset"] = self.getEventParam(event, 2, 0)
+                    if self.renameDefaultEvents:
+                        name = Events.CHANGE_BUMP_INTERVAL
+                    
+                    newparams[self.renameParam("interval", "Modulo Interval")] = self.getEventParam(event, 0, 4)
+                    newparams[self.renameParam("strength", "Bump Strength")] = self.getEventParam(event, 1, 1)
+                    newparams[self.renameParam("unit", "Every Beat Type")] = self.getEventParam(event, 2, "BEAT")
+                    newparams[self.renameParam("offset", "Beat Offset")] = self.getEventParam(event, 2, 0)
                 case "Camera Position":
-                    name = Events.CAMERA_FOCUS
-                    newparams["char"] = -1
-                    newparams["x"] = self.getEventParam(event, 0, 0)
-                    newparams["y"] = self.getEventParam(event, 1, 0)
-                    newparams["tweenMovement"] = self.getEventParam(event, 2, True)
-                    newparams["duration"] = self.getEventParam(event, 3, 4)
-                    newparams["ease"] = self.getEventParam(event, 4, "CLASSIC")
-                    newparams["isOffset"] = self.getEventParam(event, 5, False)
+                    if self.renameDefaultEvents:
+                        name = Events.CAMERA_FOCUS
+                        newparams["char"] = -1
+
+                    newparams[self.renameParam("x", "X")] = self.getEventParam(event, 0, 0)
+                    newparams[self.renameParam("y", "Y")] = self.getEventParam(event, 1, 0)
+                    newparams[self.renameParam("tweenMovement", "Tween Movement?")] = self.getEventParam(event, 2, True)
+                    newparams[self.renameParam("duration", "Tween Time (Steps, IF NOT CLASSIC)")] = self.getEventParam(event, 3, 4)
+                    newparams[self.renameParam("ease", "Tween Ease (ex: circ, quad, cube)")] = self.getEventParam(event, 4, "CLASSIC")
+                    newparams[self.renameParam("type", "Tween Type (excluded if CLASSIC or linear, ex: InOut)")] = self.getEventParam(event, 5, "In")
+                    newparams[self.renameParam("isOffset", "Is Offset?")] = self.getEventParam(event, 6, False)
                 case "Camera Movement":
-                    name = Events.CAMERA_FOCUS
-                    newparams["char"] = params[0]
+                    if self.renameDefaultEvents:
+                        name = Events.CAMERA_FOCUS
+                    newparams[self.renameParam("char", "Camera Target")] = self.getEventParam(event, 0, 0)
+                    newparams[self.renameParam("tweenMovement", "Tween Movement?")] = self.getEventParam(event, 1, False)
+                    newparams[self.renameParam("duration", "Tween Time (Steps, IF NOT CLASSIC)")] = self.getEventParam(event, 2, 4)
+                    newparams[self.renameParam("ease", "Tween Ease (ex: circ, quad, cube)")] = self.getEventParam(event, 3, "CLASSIC")
+                    newparams[self.renameParam("type", "Tween Type (excluded if CLASSIC or linear, ex: InOut)")] = self.getEventParam(event, 3, "In")
+                case "Camera Bop":
+                    newparams[self.renameParam("amount", "Amount")] = self.getEventParam(event, 0, 0.1)
+                case "Camera Zoom":
+                    newparams[self.renameParam("tweenZoom", "Tween Zoom?")] = self.getEventParam(event, 0, True)
+                    newparams[self.renameParam("zoom", "New Zoom")] = self.getEventParam(event, 1, 1)
+                    newparams[self.renameParam("cam", "Camera")] = self.getEventParam(event, 2, "camGame")
+                    newparams[self.renameParam("duration", "Tween Time (Steps)")] = self.getEventParam(event, 3, 4)
+                    newparams[self.renameParam("ease", "Tween Ease (ex: circ, quad, cube)")] = self.getEventParam(event, 4, "linear")
+                    newparams[self.renameParam("type", "Tween Type (excluded if linear, ex: InOut)")] = self.getEventParam(event, 5, "In")
+                    newparams[self.renameParam("mode", "Mode")] = self.getEventParam(event, 6, "direct")
+                    newparams[self.renameParam("multiplive", "Multiplicative?")] = self.getEventParam(event, 7, True)
+                case "Camera Flash":
+                    newparams[self.renameParam("reverse", "Reversed?")] = self.getEventParam(event, 0, False)
+                    newparams[self.renameParam("color", "Color")] = self.getEventParam(event, 1, "#FFFFFF")
+                    newparams[self.renameParam("duration", "Time (Steps)")] = self.getEventParam(event, 2, 4)
+                    newparams[self.renameParam("cam", "Camera")] = self.getEventParam(event, 3, "camHUD")
                 case "Add Camera Zoom":
-                    name = Events.ADD_ZOOM
-                    newparams["amount"] = self.getEventParam(event, 0, 0)
-                    match self.getEventParam(event, 1, "camGame"):
-                        case "camGame":
-                            cam = Camera.GAME
-                        case "camHUD":
-                            cam = Camera.HUD
-                    newparams["camera"] = cam
+                    if self.renameDefaultEvents:
+                        name = Events.ADD_ZOOM
+                        match self.getEventParam(event, 1, "camGame"):
+                            case "camGame":
+                                cam = Camera.GAME
+                            case "camHUD":
+                                cam = Camera.HUD
+                        newparams["camera"] = cam
+                    else:
+                        newparams["Camera"] = self.getEventParam(event, 1, "camGame")
+                    newparams[self.renameParam("amount", "Amount")] = self.getEventParam(event, 0, 0)
                 case "BPM Change":
-                    name = Events.CHANGE_BPM
-                    newparams["bpm"] = self.getEventParam(event, 0, 100)
+                    if self.renameDefaultEvents:
+                        name = Events.CHANGE_BPM
+                    newparams[self.renameParam("bpm", "Target BPM")] = self.getEventParam(event, 0, 100)
+                case "Continuous BPM Change":
+                    newparams[self.renameParam("bpm", "Target BPM")] = self.getEventParam(event, 0, 100)
+                    newparams[self.renameParam("duration", "Time (steps)")] = self.getEventParam(event, 1, 4)
+                case "Time Signature Change":
+                    newparams[self.renameParam("numerator", "Target Numerator")] = self.getEventParam(event, 0, 4)
+                    newparams[self.renameParam("denominator", "Target Denominator")] = self.getEventParam(event, 1, 4)
+                    newparams[self.renameParam("stepPerBeat", "Denominator is Steps Per Beat")] = self.getEventParam(event, 2, False)
                 case "Scroll Speed Change" | "Change Scroll Speed":
-                    name = Events.CHANGE_SCROLL_SPEED
-                    newparams["tweenSpeed"] = self.getEventParam(event, 0, True)
-                    newparams["speed"] = self.getEventParam(event, 1, 1)
-                    newparams["time"] = self.getEventParam(event, 2, 4)
-                    newparams["ease"] = self.getEventParam(event, 3, "linear")
-                    newparams["type"] = self.getEventParam(event, 4, "In")
-                    newparams["multiplive"] = self.getEventParam(event, 5, False)
+                    if self.renameDefaultEvents:
+                        name = Events.CHANGE_SCROLL_SPEED   
+                    newparams[self.renameParam("tweenSpeed", "Tween Speed?")] = self.getEventParam(event, 0, True)
+                    newparams[self.renameParam("speed", "New Speed")] = self.getEventParam(event, 1, 1)
+                    newparams[self.renameParam("time", "Tween Time (Steps)")] = self.getEventParam(event, 2, 4)
+                    newparams[self.renameParam("ease", "Tween Type (excluded if linear, ex: InOut)")] = self.getEventParam(event, 3, "linear")
+                    newparams[self.renameParam("type", "New Speed")] = self.getEventParam(event, 4, "In")
+                    newparams[self.renameParam("multiplive", "Multiplicative?")] = self.getEventParam(event, 5, False)
                 case __:
                     newparams = self.customEventsParamParser(name, params)
 
             eventObj = ChartEvent(event["time"], name, newparams)
-            eventObj.setMeta("codenameOriginalParams", params) #This will user for no lose data or mix
+            eventObj.setMeta("codenameOriginalParams", params) #This will user for no lose data when reimporter
             chart.events.append(eventObj)
         voicesSuffix = []
 
@@ -142,10 +190,10 @@ class CodenameHandler(SongHandler):
                 
             lane = chart.addLane(strumline["characters"][0], index)
             lane.setMeta("type", strumType)
-            vocalSuffix = strumline.get("vocalsSuffix", "")
+            vocalSuffix:str = strumline.get("vocalsSuffix", "")
             if vocalSuffix != "":
                 voicesSuffix.insert(i, vocalSuffix)
-            lane.setMeta("vocalsSuffix", vocalSuffix)
+                lane.setMeta("vocalSuffix", vocalSuffix.removeprefix("-"))
 
             lane.setMeta("position", strumline["position"])
 

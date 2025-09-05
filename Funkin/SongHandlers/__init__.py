@@ -8,24 +8,24 @@ from Funkin.ModFolder import ModFolder
 from Constants import Engine
 
 
-def importSong(modFolder:ModFolder, songName = "test"):
+def importSong(modFolder:ModFolder, songName = "test", renameDefault:bool = True):
     song:Song
     handler:SongHandler = getHandler(modFolder.getEngine())
-
+    handler.renameDefaultEvents = renameDefault
     song = handler.importSong(modFolder, songName)
     return song
     
 
-def exportSong(modFolder:ModFolder, song:Song, diff:str = "hard"):
+def exportSong(modFolder:ModFolder, song:Song, diffs:list[str] = ["hard"]):
     song:Song = song
     handler:SongHandler = getHandler(modFolder.getEngine())
 
-    success = handler.exportSong(modFolder, song, diff)
+    success = handler.exportSong(modFolder, song, diffs)
     if not success:
         print(f"Couldn't export {song.internName}")
 
-def exportFNFC(song:Song, diff:str = "hard", path:str = "temp"):
-    VSliceHandler().exportFNFC(song, diff, path)
+def exportFNFC(song:Song, diffs:list[str] = ["hard"], path:str = None):
+    VSliceHandler().exportFNFC(song, diffs, path)
 
 def getHandler(engine) -> SongHandler:
     match engine:

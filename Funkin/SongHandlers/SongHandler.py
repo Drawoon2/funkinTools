@@ -6,17 +6,18 @@ class SongHandler:
     def __init__(self, engine:int = 0):
         self.engine = engine
         self.song:Song = None
+        self.renameDefaultEvents = True
     def getEngine(self):
         return self.engine
+
     #Import giving a mod and song name
-    @staticmethod
-    def importSong(modFolder:ModFolder, songName:str) -> Song:
+    def importSong(self, modFolder:ModFolder, songName:str) -> Song:
         return Song()
     #Import giving the files
-    @staticmethod
-    def localImportSong(files:dict[str, str]) -> Song:
+    def localImportSong(self, files:dict[str, str]) -> Song:
         return Song()
     #Export to the giving mod
-    @staticmethod
-    def exportSong(modFolder:ModFolder, song:Song, diff:str = "hard") -> bool:
+    def exportSong(self, modFolder:ModFolder, song:Song, diff:str = "hard") -> bool:
+        return True
+    def exportSong(self, modFolder:ModFolder, song:Song, diffs:list = []) -> bool:
         return True

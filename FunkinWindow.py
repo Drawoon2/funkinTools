@@ -75,16 +75,7 @@ class FunkinWindow(QMainWindow):
         else:
             print("Couldn't create the mod Folder")
     def openMod(self):
-        modFolderPath = QFileDialog.getExistingDirectory(self, "Plese select the Mod Folder", QDir.currentPath())
-        engine = ModFolder.guessEngine(modFolderPath)
-        modFolder = None
-        match engine:
-            case Engine.PSYCH:
-                modFolder = PsychMod.load(modFolderPath)
-            case Engine.CODENAME:
-                modFolder = CodenameMod.load(modFolderPath)
-            case Engine.VSLICE:
-                modFolder = VsliceMod.load(modFolderPath)
+        modFolder = Dialogs.openModDialog(self)
         Manager.instance.setModFolder(modFolder)
     def updateStatusBar(self):
         mod = Manager.instance.modFolder

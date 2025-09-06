@@ -30,16 +30,34 @@ class PsychMod(ModFolder):
     def setModName(self, newName:str):
         super().setModName(newName)
         self.pack["name"] = newName
-        Paths.saveJson(self.getPath("pack.json"), self.pack)
+        self.updatePack()
+
     def getModName(self):
         return self.pack["name"]
     def setDescription(self, new):
         self.pack["description"] = new
-        Paths.saveJson(self.getPath("pack.json"), self.pack)
+        self.updatePack()
     def getDescription(self):
         return self.pack["description"]
+    def setDiscordRPC(self, token):
+        self.pack["discordRPC"] = token
+        self.updatePack()
+    def getDiscordRPC(self):
+        return self.pack.get("discordRPC")
+    
+    def setApiVersion(self, version):
+        super().setApiVersion(version)
+        self.pack["apiVersion"] = version
+        self.updatePack()
+    def getApiVersion(self):
+        return super().getApiVersion()
+    
     def update(self):
-        self.pack = Paths.getJsonData(self.getPath("pack.json"))
+        if Paths.exists(self.getPath("pack.json")):
+            self.pack = Paths.getJsonData(self.getPath("pack.json"))
+        self.apiVersion = self.pack.get("apiVersion", "1.0")
+    def updatePack(self):
+        Paths.saveJson(self.getPath("pack.json"), self.pack)
     @classmethod
     def generate(cls, engineFolder:str):
         modFolder = Paths.join(engineFolder, f"mods/{Constants.DEFAULT_MOD_NAME}")

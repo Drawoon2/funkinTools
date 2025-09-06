@@ -191,7 +191,7 @@ class CodenameHandler(SongHandler):
             lane = chart.addLane(strumline["characters"][0], index)
             lane.setMeta("type", strumType)
             vocalSuffix:str = strumline.get("vocalsSuffix", "")
-            if vocalSuffix != "":
+            if vocalSuffix != "" and vocalSuffix is not None:
                 voicesSuffix.insert(i, vocalSuffix)
                 lane.setMeta("vocalSuffix", vocalSuffix.removeprefix("-"))
 

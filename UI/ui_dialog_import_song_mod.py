@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'dialog_import_song_modhEPoLW.ui'
+## Form generated from reading UI file 'dialog_import_song_modRtrado.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.9.2
 ##
@@ -55,11 +55,6 @@ class Ui_songImportMod(object):
 
         self.formLayout.setWidget(2, QFormLayout.ItemRole.LabelRole, self.engine_label)
 
-        self.showengine_label = QLabel(songImportMod)
-        self.showengine_label.setObjectName(u"showengine_label")
-
-        self.formLayout.setWidget(2, QFormLayout.ItemRole.FieldRole, self.showengine_label)
-
         self.path_label = QLabel(songImportMod)
         self.path_label.setObjectName(u"path_label")
 
@@ -69,6 +64,14 @@ class Ui_songImportMod(object):
         self.showpath_label.setObjectName(u"showpath_label")
 
         self.formLayout.setWidget(1, QFormLayout.ItemRole.FieldRole, self.showpath_label)
+
+        self.engine_combobox = QComboBox(songImportMod)
+        self.engine_combobox.addItem("")
+        self.engine_combobox.addItem("")
+        self.engine_combobox.addItem("")
+        self.engine_combobox.setObjectName(u"engine_combobox")
+
+        self.formLayout.setWidget(2, QFormLayout.ItemRole.FieldRole, self.engine_combobox)
 
 
         self.retranslateUi(songImportMod)
@@ -83,8 +86,11 @@ class Ui_songImportMod(object):
         self.song_label.setText(QCoreApplication.translate("songImportMod", u"Song:", None))
         self.import_button.setText(QCoreApplication.translate("songImportMod", u"Import", None))
         self.engine_label.setText(QCoreApplication.translate("songImportMod", u"Mod Folder Engine: ", None))
-        self.showengine_label.setText(QCoreApplication.translate("songImportMod", u"PSYCH", None))
         self.path_label.setText(QCoreApplication.translate("songImportMod", u"Mod Folder Path: ", None))
-        self.showpath_label.setText(QCoreApplication.translate("songImportMod", u"/to/the/modFolder", None))
+        self.showpath_label.setText("")
+        self.engine_combobox.setItemText(0, QCoreApplication.translate("songImportMod", u"PSYCH", None))
+        self.engine_combobox.setItemText(1, QCoreApplication.translate("songImportMod", u"CODENAME", None))
+        self.engine_combobox.setItemText(2, QCoreApplication.translate("songImportMod", u"VSLICE", None))
+
     # retranslateUi
 

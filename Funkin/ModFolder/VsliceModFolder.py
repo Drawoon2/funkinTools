@@ -44,15 +44,32 @@ class VsliceMod(ModFolder):
         
 
         return mod
-    
+    def setApiVersion(self, version):
+        super().setApiVersion(version)
+        self.metadata["api_version"] = version
+        self.updateMetadata()
+    def setVersion(self, version):
+        self.metadata["mod_version"] = version
+        self.updateMetadata()
+    def getVersion(self):
+        return self.metadata["mod_version"]
+    def setDescription(self, new):
+        self.metadata["description"] = new
+        self.updateMetadata()
+    def getDescription(self):
+        return self.metadata["description"]
     def setModName(self, newName:str):
         super().setModName(newName)
         self.metadata["title"] = newName
-        Paths.saveJson(self.getPath("_polymod_meta.json"), self.metadata)
+        self.updateMetadata()
     def getModName(self):
-        return self.metadata["name"]
+        return self.metadata["title"]
     def update(self):
-        self.metadata = Paths.getJsonData(self.getPath("_polymod_meta.json"))
+        if Paths.exists(self.getPath("_polymod_meta.json")):
+            self.metadata = Paths.getJsonData(self.getPath("_polymod_meta.json"))
+            self.apiVersion = self.metadata["api_version"]
+    def updateMetadata(self):
+        Paths.saveJson(self.getPath("_polymod_meta.json"), self.metadata)
     def listSongs(self):
         chartsPath = Paths.listFolder(self.getPath("data/songs"))
         songsPath = Paths.listFolder(self.getPath("songs"))

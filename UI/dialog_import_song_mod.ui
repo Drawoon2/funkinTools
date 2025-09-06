@@ -52,13 +52,6 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="1">
-    <widget class="QLabel" name="showengine_label">
-     <property name="text">
-      <string>PSYCH</string>
-     </property>
-    </widget>
-   </item>
    <item row="1" column="0">
     <widget class="QLabel" name="path_label">
      <property name="text">
@@ -69,8 +62,27 @@
    <item row="1" column="1">
     <widget class="QLabel" name="showpath_label">
      <property name="text">
-      <string>/to/the/modFolder</string>
+      <string/>
      </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QComboBox" name="engine_combobox">
+     <item>
+      <property name="text">
+       <string>PSYCH</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>CODENAME</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>VSLICE</string>
+      </property>
+     </item>
     </widget>
    </item>
   </layout>

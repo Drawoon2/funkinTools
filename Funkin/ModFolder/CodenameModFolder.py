@@ -6,6 +6,7 @@ from Constants import Engine
 class CodenameMod(ModFolder):
     def __init__(self, path = ""):
         super().__init__(path)
+        self.discordData = {"clientID": "", "logoKey": "icon"}
 
     def getEngine(self):
         return Engine.CODENAME
@@ -33,4 +34,16 @@ class CodenameMod(ModFolder):
         return songs
     @classmethod
     def load(cls, path):
-        return cls(path)
+        mod = cls(path)
+        mod.update()
+        return mod
+    def update(self):
+        if Paths.exists(self.getPath("data/config/discord.json")):
+            self.discordData = Paths.getJsonData(self.getPath("data/config/discord.json"))
+    def setDiscordRPC(self, token):
+        Paths.createFolder(self.getPath("data"))
+        Paths.createFolder(self.getPath("data/config"))
+        self.discordData["clientID"] = token
+        Paths.saveJson(self.getPath("data/config/discord.json"), self.discordData)
+    def getDiscordRPC(self):
+        return self.discordData["clientID"]

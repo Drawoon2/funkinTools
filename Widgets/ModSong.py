@@ -14,10 +14,7 @@ class ModSong(QWidget):
         self.song:Song = None
         self.curDiff:str = None
         self.noteSettings:dict[str, dict] = {}
-        self.eventSettings:dict = {}
-        codenameMod = CodenameMod("E:\ModsFNF\monsterofmonsterscodename\MonsterOfMonstersCODENAME/assets")
-        song = SongHandlers.importSong(codenameMod, "Out-Of-Place")
-
+        self.eventSettings:dict[str, str] = {}
         
         self.ui.renamedefault_check.setChecked(True)
         self.ui.open_button.pressed.connect(lambda: self.importFromMod(True))
@@ -41,8 +38,52 @@ class ModSong(QWidget):
         self.ui.translatenotes_check.toggled.connect(self.toggleNoteConfig)
         self.toggleNoteConfig(self.ui.translatenotes_check.isChecked())
 
-        self.setSong(song)
+        Manager.instance.onModFolderUpdate.connect(self.updateModFolder)
 
+        self.updateModFolder()
+        self.updateSongUI()
+
+    def updateSongUI(self):
+        disabled = self.song is None
+        #Global
+        self.ui.internalname_label.setDisabled(disabled)
+        self.ui.internalname_input.setDisabled(disabled)
+        self.ui.diff_label.setDisabled(disabled)
+        self.ui.diff_combobox.setDisabled(disabled)
+        self.ui.variants_label.setDisabled(disabled)
+        self.ui.variant_input.setDisabled(disabled)
+        self.ui.isvariant_check.setDisabled(disabled)
+        self.ui.name_label.setDisabled(disabled)
+        self.ui.name_input.setDisabled(disabled)
+        self.ui.stage_label.setDisabled(disabled)
+        self.ui.stage_input.setDisabled(disabled)
+        self.ui.player_label.setDisabled(disabled)
+        self.ui.player_input.setDisabled(disabled)
+        self.ui.gf_label.setDisabled(disabled)
+        self.ui.gf_input.setDisabled(disabled)
+        self.ui.opponent_label.setDisabled(disabled)
+        self.ui.opponent_input.setDisabled(disabled)
+
+        self.ui.exportfnfc_button.setDisabled(disabled)
+        #Events Notes
+        self.ui.translateevents_check.setDisabled(disabled)
+        self.ui.translatenotes_check.setDisabled(disabled)
+        if disabled:
+            self.toggleNoteConfig(not disabled)
+            self.toggleEventConfig(not disabled)
+        else:
+            self.toggleNoteConfig(self.ui.translateevents_check.isChecked())
+            self.toggleEventConfig(self.ui.translateevents_check.isChecked())
+        
+        self.updateModFolder()
+    def updateModFolder(self):
+        mod = Manager.instance.modFolder
+        disabled = mod is None
+        self.ui.open_button.setDisabled(disabled)
+        if self.song is None:
+            disabled = True
+        self.ui.addsong_button.setDisabled(disabled)
+        
     def importFromMod(self, fromManager:bool = False):
         dialog = Dialogs.ImportSongMod(fromManager, self)
         dialog.renameDefault = self.ui.renamedefault_check.isChecked()
@@ -115,8 +156,11 @@ class ModSong(QWidget):
 
     def setSong(self, song:Song):
         self.song = song
+        self.updateSongUI()
         self.updateUI()
     def updateUI(self):
+        self.noteSettings = {}
+        self.eventSettings = {}
         self.ui.internalname_input.setText(self.song.internName)
 
         self.ui.diff_combobox.currentTextChanged.disconnect(self.updateDiff)
@@ -197,9 +241,11 @@ class ModSong(QWidget):
             return
         SongHandlers.exportSong(mod, self.song, self.song.getDifficults())
     def exportFNFC(self):
-        self.applySongConfig()
         defaultName = Paths.join(QDir.currentPath(), f"{self.song.internName}.fnfc")
         path, filter = QFileDialog.getSaveFileName(self, "Save .fnfc", defaultName, SearchFormat.FNFC_FORMAT)
 
+        if path == "":
+            return
+        self.applySongConfig()
         SongHandlers.exportFNFC(self.song, self.song.getDifficults(), path)
         

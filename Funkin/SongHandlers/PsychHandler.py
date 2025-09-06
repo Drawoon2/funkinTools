@@ -63,6 +63,10 @@ class PsychHandler(SongHandler):
         chartData = Paths.getJsonData(filePath)
         if chartData.get("notes") is None:
             chartData = chartData.get("song")
+        isLegacy = False
+        if not chartData.get("format", "").startswith("psych_v1"):
+            print("Legacy Chart")
+            isLegacy = True
         diff = Paths.getFileName(filePath).removeprefix(song.internName).removesuffix(".json")
         if diff.strip() == "":
             diff = "normal"
@@ -76,16 +80,42 @@ class PsychHandler(SongHandler):
         chart.stage = chartData["stage"]
         chart.addLane(chartData["player2"], Character.DAD)
         chart.addLane(chartData["player1"], Character.BOYFRIEND)
-        chart.addLane(chartData.get("gfVersion", "gf"), Character.GF)
+        gfChar = chartData.get("gfVersion")
+
+        if isLegacy and gfChar is None:
+            gfChar = chartData.get("player3")
+
+        if gfChar is None:
+            gfChar = "gf"
+        chart.addLane(gfChar, Character.GF)
+
         lastMustHitSection = None
         sectionsLength = ((60 / chart.bpm) * 1000) * 4
         sectionEvents = []
         for i, section in enumerate(chartData["notes"]):
-            gfSection = section.get("gfSection", False)
-            mustHitSection = section.get("mustHitSection", False)
+            gfSection:bool = section.get("gfSection", False)
+            mustHitSection:bool = section.get("mustHitSection", False)
 
             for note in section["sectionNotes"]:
-                if note[1] > 3:
+                notePos = note[1]
+                if isLegacy:
+                    if notePos < 0:
+                        event = self.importEvent(note[0], note[2], note[3], note[4])
+                        if event is None:
+                            continue
+                        sectionEvents.append(event)
+                        continue
+                    if notePos < 4:
+                        hitNote = mustHitSection
+                        
+                    else:
+                        hitNote = not mustHitSection
+                    
+                    notePos = (notePos % 4)
+                    if not hitNote:
+                        notePos += 4
+
+                if notePos > 3:
                     if gfSection and not mustHitSection:
                         char = Character.GF
                     else:
@@ -96,21 +126,25 @@ class PsychHandler(SongHandler):
                     char = Character.BOYFRIEND
 
                 strum = note[0]
-                noteData = note[1] % 4
+                noteData = notePos % 4
                 length = note[2]
                 if len(note) < 4:
                     noteType = Notes.DEFAULT
                 else:
                     noteType = note[3]
                 match noteType:
-                    case "":
+                    case "" | 0:
                         noteType = Notes.DEFAULT
-                    case "GF Sing":
+                    case "Alt Animation" | 1:
+                        noteType = Notes.ALT_ANIM
+                    case "Hey!" | 2:
+                        noteType = "Hey!"
+                    case "Hurt Note" | 3:
+                        noteType = "Hurt Note"
+                    case "GF Sing" | 4:
                         noteType = Notes.DEFAULT
                         char = Character.GF
-                    case "Alt Animation":
-                        noteType = Notes.ALT_ANIM
-                    case "No Animation":
+                    case "No Animation" | 5:
                         noteType = Notes.NO_ANIM
                 lane = chart.getLane(char)
                 lane.addNote(strum, noteData, length, noteType)
@@ -128,51 +162,54 @@ class PsychHandler(SongHandler):
                 sectionEvents.append(event)
                 lastMustHitSection == mustHitSection
 
-        events = self.importEvents(chartData["events"])
+        events = self.importEvents(chartData.get("events"))
         chart.events = events + sectionEvents + externalEvents
         chart.sortEvents()
         return chart
-
     def importEvents(self, eventsList):
         events = []
+        #This is for legacy charts
+        if eventsList is None:
+            return events
+        
         for eventGroup in eventsList:
             strum = eventGroup[0]
             for event in eventGroup[1]:
-                name = event[0]
-                value1 = event[1]
-                value2 = event[2]
-                args = {}
-                if not self.renameDefaultEvents:
-                    args["value1"] = value1
-                    args["value2"] = value2
-                    event = ChartEvent(strum, name, args)
+                event = self.importEvent(strum, event[0], event[1], event[2])
+                if event is not None:
                     events.append(event)
-                    continue
-                match name:
-                    case "Play Animation":
-                        name = Events.PLAY_ANIMATION
-                        args["animation"] = value1
-                        args["character"] = value2
-                    case "Camera Follow Pos":
-                        if value1 == "" and value2 == "":
-                            continue
-                        name = Events.CAMERA_FOCUS
-                        args["char"] = -1
-                        args["x"] = float(value1)
-                        args["y"] = float(value2)
-                    case "Change Scroll Speed":
-                        name = Events.CHANGE_SCROLL_SPEED
-                        args["speed"] = value1
-                        args["multiplive"] = True
-                        args["timeSec"] = value2
-                    case __:
-                        args["value1"] = value1
-                        args["value2"] = value2
-                event = ChartEvent(strum, name, args)
-                events.append(event)
 
 
         return events
+    def importEvent(self, strum, name:str, value1:str = "", value2:str = "") -> ChartEvent:
+        args = {}
+        if not self.renameDefaultEvents:
+            args["value1"] = value1
+            args["value2"] = value2
+            return ChartEvent(strum, name, args)
+
+        match name:
+            case "Play Animation":
+                name = Events.PLAY_ANIMATION
+                args["animation"] = value1
+                args["character"] = value2
+            case "Camera Follow Pos":
+                if value1 == "" and value2 == "":
+                    return None
+                name = Events.CAMERA_FOCUS
+                args["char"] = -1
+                args["x"] = float(value1)
+                args["y"] = float(value2)
+            case "Change Scroll Speed":
+                name = Events.CHANGE_SCROLL_SPEED
+                args["speed"] = value1
+                args["multiplive"] = True
+                args["timeSec"] = value2
+            case __:
+                args["value1"] = value1
+                args["value2"] = value2
+        return ChartEvent(strum, name, args)
+
     def exportSong(self, modFolder:PsychMod, song:Song, diffs:list[str] = []) -> bool:
         Paths.createFolder(modFolder.getPath("songs"))
         Paths.createFolder(modFolder.getPath("data"))

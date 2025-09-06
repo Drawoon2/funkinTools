@@ -41,6 +41,19 @@ class ModFolder:
         pass
     def getDescription(self) -> str:
         return None
+    def setDiscordRPC(self, token:str):
+        pass
+
+    def getDiscordRPC(self) -> str:
+        return None
+    def setApiVersion(self, version:str):
+        self.apiVersion = version
+    def getApiVersion(self) -> str:
+        return self.apiVersion
+    def setVersion(self, version:str):
+        pass
+    def getVersion(self) -> str:
+        return None
     def setIcon(self, iconPath:str):
         pass
     def getIconPath(self) -> str:

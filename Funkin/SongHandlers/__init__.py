@@ -23,6 +23,7 @@ def exportSong(modFolder:ModFolder, song:Song, diffs:list[str] = ["hard"]):
     success = handler.exportSong(modFolder, song, diffs)
     if not success:
         print(f"Couldn't export {song.internName}")
+    return success
 
 def exportFNFC(song:Song, diffs:list[str] = ["hard"], path:str = None):
     VSliceHandler().exportFNFC(song, diffs, path)

@@ -18,7 +18,8 @@ def exists(path):
 def createFolder(path):
     if not os.path.isdir(os.path.normpath(path)):
         os.mkdir(path)
-
+def deleteFolder(path):
+    os.rmdir(os.path.normpath(path))
 def rename(ogPath, path):
     os.rename(os.path.normpath(ogPath), os.path.normpath(path))
 def createFile(path, content):

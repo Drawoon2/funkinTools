@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QDialog, QWidget
-from Funkin.ModFolder import ModFolder
+from Funkin.ModFolder import ModFolder, PsychMod, VsliceMod, CodenameMod
+from Constants import Engine
 from Funkin import Song, SongHandlers
 import UI, Manager, Dialogs
 
@@ -13,20 +14,34 @@ class ImportSongMod(QDialog):
         self.renameDefault:bool = True
         if fromManager and Manager.instance.modFolder is not None:
             self.mod = Manager.instance.modFolder
+            self.ui.engine_combobox.setCurrentIndex(self.mod.getEngine())
             self.updateFromMod()
 
         self.ui.select_button.pressed.connect(self.selectMod)
         self.ui.import_button.pressed.connect(self.importSong)
+        self.ui.engine_combobox.currentIndexChanged.connect(self.selectEngine)
+    def selectEngine(self, engine):
+        if self.mod is None:
+            return
+        path = self.mod.FolderPath
+        match engine:
+            case Engine.PSYCH:
+                self.mod = PsychMod.load(path)
+            case Engine.CODENAME:
+                self.mod = CodenameMod.load(path)
+            case Engine.VSLICE:
+                self.mod = VsliceMod.load(path)
+        self.updateFromMod()
     def selectMod(self):
-        modFolder = Dialogs.openModDialog(self)
-        self.mod = modFolder
+        self.mod = Dialogs.openModDialog(self)
+        self.ui.engine_combobox.setCurrentIndex(self.mod.getEngine())
         self.updateFromMod()
     def updateFromMod(self):
         if self.mod is None:
             print("ImportSongMod: mod not gived")
             return
         self.ui.showpath_label.setText(self.mod.FolderPath)
-        self.ui.showengine_label.setText(self.mod.getEngineName())
+        
 
         songs = self.mod.listSongs()
 

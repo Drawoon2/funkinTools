@@ -176,7 +176,8 @@ class VSliceHandler(SongHandler):
         Paths.createFolder(temp)
 
         self.exportData(song, diffs, temp, temp)
-
+        data = VSliceHandler.getManifest(song.internName)
+        Paths.saveJson(Paths.join(temp, "manifest.json"), data)
 
         if filePath is None:
             filePath = f"temp/{song.internName}.fnfc"
@@ -184,6 +185,8 @@ class VSliceHandler(SongHandler):
             for file in Paths.listFolder(temp):
                 fullPath = f"{temp}/{file}"
                 zip.write(fullPath, file)
+        
+        Paths.deleteFolder(temp)
 
     def importSong(self, modFolder:VsliceMod, songName:str) -> Song:
         self.songDataFolder = modFolder.getPath(f"data/songs/{songName}")

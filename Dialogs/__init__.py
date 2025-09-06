@@ -1,7 +1,7 @@
 from .ModFolderCreator import ModFolderCreator
 from .ImportSongMod import ImportSongMod
 
-from PySide6.QtWidgets import QWidget, QFileDialog
+from PySide6.QtWidgets import QWidget, QFileDialog, QMessageBox
 from PySide6.QtCore import QDir
 from Funkin.ModFolder import PsychMod, CodenameMod, VsliceMod, ModFolder
 from Constants import Engine
@@ -19,3 +19,12 @@ def openModDialog(parent:QWidget) -> ModFolder:
         case Engine.VSLICE:
             modFolder = VsliceMod.load(modFolderPath)
     return modFolder
+
+def errorDialog(parent:QWidget, title:str, info:str):
+    QMessageBox.critical(parent, title, info)
+
+def warningDialog(parent:QWidget, title:str, info:str):
+    QMessageBox.warning(parent, title, info)
+
+def informativeDialog(parent:QWidget, title:str, info:str):
+    QMessageBox.information(parent, title, info)

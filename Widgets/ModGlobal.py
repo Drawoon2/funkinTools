@@ -1,7 +1,6 @@
 from PySide6.QtWidgets import QWidget, QFileDialog, QLineEdit
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import QDir
-from Funkin import ModFolder
 from Constants import SearchFormat
 import UI, Manager, Paths
 

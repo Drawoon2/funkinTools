@@ -1,13 +1,18 @@
-import os, shutil, json
-
+import os, shutil, json, sys
+isCompile = hasattr(sys, "frozen")
 def getDirName(path):
     return os.path.dirname(os.path.normpath(path))
 
 def join(path1, path2):
     return os.path.join(os.path.normpath(path1), os.path.normpath(path2))
-
+def getFromRoot(path):
+    if isCompile:
+        return join(sys._MEIPASS, path)
+    return join(os.path.dirname(os.path.abspath("main.py")), path)
 def getAssetPath(path):
-    return join("assets", path)
+    return join(getFromRoot("assets"), path)
+def getTempPath(path):
+    return join(getFromRoot("temp"), path)
 def getFileName(path) -> str:
     return os.path.basename(path)
 def exists(path):
@@ -19,7 +24,7 @@ def createFolder(path):
     if not os.path.isdir(os.path.normpath(path)):
         os.mkdir(path)
 def deleteFolder(path):
-    os.rmdir(os.path.normpath(path))
+    shutil.rmtree(os.path.normpath(path))
 def rename(ogPath, path):
     os.rename(os.path.normpath(ogPath), os.path.normpath(path))
 def createFile(path, content):
@@ -35,7 +40,11 @@ def saveJson(path, data):
     with open(path, "w") as file:
         json.dump(data, file, indent=4)
 def copyFile(filePath, copyfilePath):
-    shutil.copyfile(os.path.normpath(filePath), os.path.normpath(copyfilePath))
+    filePath = os.path.normpath(filePath)
+    copyfilePath = os.path.normpath(copyfilePath)
+    if filePath == copyfilePath:
+        return
+    shutil.copyfile(filePath, copyfilePath)
 
 def listFolder(path) -> list[str]:
     path = os.path.normpath(path)

@@ -238,8 +238,10 @@ class ModSong(QWidget):
         mod = Manager.instance.modFolder
         if mod.getEngine() == Engine.CODENAME:
             print("Isn't added yet")
+            Dialogs.errorDialog(self, "Feature not Added", "Exportation to codename engine isn't added yet")
             return
         SongHandlers.exportSong(mod, self.song, self.song.getDifficults())
+        Dialogs.informativeDialog(self, "Song Added!!", f"Song {self.song.internName} has be added in {mod.getModName()}")
     def exportFNFC(self):
         defaultName = Paths.join(QDir.currentPath(), f"{self.song.internName}.fnfc")
         path, filter = QFileDialog.getSaveFileName(self, "Save .fnfc", defaultName, SearchFormat.FNFC_FORMAT)
@@ -248,4 +250,5 @@ class ModSong(QWidget):
             return
         self.applySongConfig()
         SongHandlers.exportFNFC(self.song, self.song.getDifficults(), path)
+        Dialogs.informativeDialog(self, "Song Saved!!", f"Song \"{self.song.internName}\" has be saved in Path: {path}")
         

@@ -71,8 +71,9 @@ class FunkinWindow(QMainWindow):
         if result == 1:
             Manager.instance.setModFolder(dialog.mod)
             print(Manager.instance.modFolder)
-            
+            Dialogs.informativeDialog(self, "Mod folder created", f"Mod folder \"{dialog.mod.getModName()}\" created")
         else:
+            Dialogs.errorDialog(self, "Error", "Mod folder not created")
             print("Couldn't create the mod Folder")
     def openMod(self):
         modFolder = Dialogs.openModDialog(self)

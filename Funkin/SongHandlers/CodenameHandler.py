@@ -224,6 +224,10 @@ class CodenameHandler(SongHandler):
                 chart.songVoices.append(path)
 
         if len(chart.songVoices) < 1:
-            chart.songVoices.append(Paths.join(self.songFolder, f"song/Voices.ogg"))
-            print("Not found voices with suffix")
+            defaultVoices = Paths.join(self.songFolder, f"song/Voices.ogg")
+            if Paths.exists(defaultVoices):
+                chart.songVoices.append(defaultVoices)
+                print("Not found voices with suffix")
+            else:
+                print("Song without voices")
         

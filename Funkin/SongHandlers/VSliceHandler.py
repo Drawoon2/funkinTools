@@ -172,7 +172,8 @@ class VSliceHandler(SongHandler):
             suffix = f"-{suffix}"
         return suffix
     def exportFNFC(self, song:Song, diffs:list[str] = ["hard"], filePath:str = None):
-        temp = f"temp/{song.internName}"
+        Paths.createFolder(Paths.getFromRoot("temp"))
+        temp = Paths.getTempPath(song.internName)
         Paths.createFolder(temp)
 
         self.exportData(song, diffs, temp, temp)
@@ -180,7 +181,7 @@ class VSliceHandler(SongHandler):
         Paths.saveJson(Paths.join(temp, "manifest.json"), data)
 
         if filePath is None:
-            filePath = f"temp/{song.internName}.fnfc"
+            filePath = f"{song.internName}.fnfc"
         with zipfile.ZipFile(filePath, "w") as zip:
             for file in Paths.listFolder(temp):
                 fullPath = f"{temp}/{file}"
@@ -216,7 +217,8 @@ class VSliceHandler(SongHandler):
             chart.setMetaFromDict(metaData)
             chart.songName = defaultMeta["songName"]
             chart.setMeta("rating", defaultMeta["playData"]["ratings"][diff])
-            chart.setMeta("instSuffix", characters["instrumental"])
+            if characters.get("instrumental") is not None:
+                chart.setMeta("instSuffix", characters["instrumental"])
 
         #Variants
         for variant in defaultMeta["playData"]["songVariations"]:
@@ -244,7 +246,8 @@ class VSliceHandler(SongHandler):
                 chart.setMetaFromDict(variant_metaData)
                 chart.songName = variantMeta["songName"]
                 chart.setMeta("rating", variantMeta["playData"]["ratings"][diff])
-                chart.setMeta("instSuffix", variant_characters["instrumental"])
+                if variant_characters.get("instrumental") is not None:
+                    chart.setMeta("instSuffix", variant_characters["instrumental"])
 
                 chart.isVariant = True
                 chart.variantTag = variant
@@ -298,8 +301,13 @@ class VSliceHandler(SongHandler):
     def getVoices(self, metaData:dict, variant:str = None) -> list:
         voices = []
         characters:dict = metaData["playData"]["characters"]
-        voices.insert(Character.BOYFRIEND, self.getVoicePath(metaData, "player", characters.get("playerVocals"), variant))
-        voices.insert(Character.DAD, self.getVoicePath(metaData, "opponent", characters.get("opponentVocals"), variant))
+
+        bfVoices = self.getVoicePath(metaData, "player", characters.get("playerVocals"), variant)
+        if bfVoices is not None:
+            voices.insert(Character.BOYFRIEND, bfVoices)
+        dadVoices = self.getVoicePath(metaData, "opponent", characters.get("opponentVocals"), variant)
+        if dadVoices is not None:
+            voices.insert(Character.DAD, dadVoices)
         return voices
 
     def getVoicePath(self, metaData, character:str, vocals:list[str] = None, variant:str = None):

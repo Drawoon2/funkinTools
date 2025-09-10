@@ -42,6 +42,7 @@ class ModSong(QWidget):
 
         self.updateModFolder()
         self.updateSongUI()
+        
 
     def updateSongUI(self):
         disabled = self.song is None
@@ -161,6 +162,10 @@ class ModSong(QWidget):
     def updateUI(self):
         self.noteSettings = {}
         self.eventSettings = {}
+        
+        self.updateNotetypeList()
+        self.updateEventList()
+
         self.ui.internalname_input.setText(self.song.internName)
 
         self.ui.diff_combobox.currentTextChanged.disconnect(self.updateDiff)

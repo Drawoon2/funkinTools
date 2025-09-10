@@ -35,7 +35,16 @@ class Character:
 				return "gf"
 			case __:
 				return "unknown"
-			
+class RenderType:
+	SPARROW = 0
+	ATLAS = 1
+	MULTISPARROW = 2
+	PACKER = 3	
+	ASESPRITE = 4
+class AnimationType:
+	LOOP = 0
+	BEAT = 1
+	
 class Events:
 	CAMERA_FOCUS = "(funkinTool)-camfocus"
 	CHANGE_BPM = "(funkinTool)-bpmchange"

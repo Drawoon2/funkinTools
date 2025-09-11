@@ -72,7 +72,6 @@ class Character:
             anim = character.addAnimation(animData.get("name", "idle"), animData.get("anim", "idle"))
             anim.frameRate = int(animData.get("fps", "24"))
             anim.loop = animData.get("loop", "false") == "true"
-            print(anim.loop)
             anim.offset[0] = int(animData.get("x", "0"))
             anim.offset[1] = int(animData.get("y", "0"))
 

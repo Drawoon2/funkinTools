@@ -8,9 +8,8 @@ class CharacterSprite(Sprite):
     def __init__(self, data:Character):
         super().__init__()
         self.data:Character = data
-        self.animator:Animator = None
+        self.danced:bool = False
         self.offsets:dict[str, list] = {}
-        self.offset:list = [0, 0]
         if self.data.renderType != RenderType.ATLAS:
             self.animator = FrameAnimator()
             match self.data.renderType:
@@ -26,33 +25,39 @@ class CharacterSprite(Sprite):
             self.offsets[name] = animData.offset
             
 
-        self.animator.antialiasing = self.data.antialiasing
-        self.animator.scaleX = self.data.scale
-        self.animator.scaleY = self.data.scale
-        self.playAnim("idle")
+        self.dance()
 
 
-
-    def draw(self, scene:QPainter):
-        self.animator.draw(scene, self.x - self.offset[0], self.y - self.offset[1])
-        return super().draw(scene)
     
     def update(self, elapsed:float):
-        self.animator.update(elapsed)
+        if self.animator.finished:
+            self.dance()
         return super().update(elapsed)
     def playAnim(self, anim:str, forced:bool = False):
         self.animator.play(anim, forced)
-        self.offset = self.offsets.get(anim, (0, 0))
+        offset = self.offsets.get(anim, (0, 0))
+        self.offsetX = -offset[0] + self.data.position[0]
+        self.offsetY = -offset[1] + self.data.position[1]
         
+    def dance(self, forced:bool = False):
+        if self.animator.hasAnimation("idle"):
+            self.playAnim("idle")
+        elif self.animator.hasAnimation("danceLeft") and self.animator.hasAnimation("danceRight"):
+            self.danced = not self.danced
+            if self.danced:
+                self.playAnim("danceLeft")
+            else:
+                self.playAnim("danceRight")
+                
     def onPressKey(self, key):
         match key:
-            case Qt.Key.Key_D:
+            case Qt.Key.Key_Z:
                 self.playAnim("singLEFT", True)
-            case Qt.Key.Key_F:
+            case Qt.Key.Key_X:
                 self.playAnim("singDOWN", True)
-            case Qt.Key.Key_J:
+            case Qt.Key.Key_C:
                 self.playAnim("singUP", True)
-            case Qt.Key.Key_K:
+            case Qt.Key.Key_V:
                 self.playAnim("singRIGHT", True)
         
     

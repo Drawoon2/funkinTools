@@ -1,17 +1,15 @@
 from PySide6.QtGui import QPainter
-
+from PIL import Image
 class Animator:
     def __init__(self):
-        self.flipX:bool = False
-        self.flipY:bool = False
-        self.scaleX:float = 1
-        self.scaleY:float = 1
-        self.antialiasing:bool = True
+        self.finished = False
     def update(self, elapsed:float):
         pass
 
-    def draw(self, scene:QPainter, x:float = 0, y:float = 0):
+    def getFrame(self) -> Image.Image:
         pass
 
     def play(self, name, forced, reverced, startFrame):
         pass
+    def hasAnimation(self, name:str) -> bool:
+        return False

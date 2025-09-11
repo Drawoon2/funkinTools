@@ -10,7 +10,9 @@ class FrameAnimator(Animator):
         self.curAnim:AnimData = None
         self.frameIndex:int = 0
         self.timer:float = 0
-        self.finished = False
+        
+    def hasAnimation(self, name:str) -> bool:
+        return self.animations.get(name) is not None
     def update(self, elapsed:float):
         if self.curAnim is None:
             self.timer = 0
@@ -25,7 +27,7 @@ class FrameAnimator(Animator):
             else:
                 self.finished = True
 
-    def draw(self, scene:QPainter, x:float = 0, y:float = 0):
+    def getFrame(self):
         if self.curAnim is None:
             return
         index = self.frameIndex
@@ -33,17 +35,13 @@ class FrameAnimator(Animator):
             index = len(self.curAnim.frames) -1 -self.frameIndex
 
         frame = self.curAnim.frames[index]
-        if self.flipX ^ self.curAnim.flipX:
+        if self.curAnim.flipX:
             frame = frame.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
         
-        if self.flipY ^ self.curAnim.flipY:
+        if self.curAnim.flipY:
             frame = frame.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
 
-        mode = Image.Resampling.NEAREST
-        if self.antialiasing:
-            mode = Image.Resampling.BILINEAR
-        frame = frame.resize((int(self.scaleX * frame.width), int(self.scaleY * frame.height)), mode)
-        scene.drawPixmap(x, y, frame.toqpixmap())
+        return frame
         
 
     def play(self, name:str, forced:bool = False, reversed:bool = False, startFrame:int = 0):

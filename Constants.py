@@ -1,4 +1,5 @@
 DEFAULT_MOD_NAME = "Template"
+VERSION = "0.0.1"
 class SearchFormat:
 	IMAGE_FORMAT = "Image File (*.png);;Any file (*.*)"
 	JSON_FORMAT = "Json File (*.json);;Any file (*.*)"

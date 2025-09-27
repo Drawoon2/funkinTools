@@ -14,7 +14,11 @@ class CodenameHandler(SongHandler):
         self.songFolder = modFolder.getPath(f"songs/{songName}")
         self.eventsFolder = modFolder.getPath(f"data/events")
         metaData = Paths.getJsonData(Paths.join(self.songFolder, "meta.json"))
-        
+        commonEvents = []
+        if Paths.exists(Paths.join(self.songFolder, "events.json")):
+            eventFile = Paths.getJsonData(Paths.join(self.songFolder, "events.json"))
+            commonEvents = self.importEvents(eventFile.get("events", []))
+
         song = Song(songName)
 
         charts = Paths.listFolder(Paths.join(self.songFolder, "charts"))
@@ -24,6 +28,8 @@ class CodenameHandler(SongHandler):
             chartObj = song.addChart(diff)
             self.importChart(chartObj, metaData, chartData)
 
+            chartObj.events += commonEvents
+            chartObj.sortEvents()
             chartObj.songInst = Paths.join(self.songFolder, "song/Inst.ogg")
 
         return song
@@ -50,15 +56,10 @@ class CodenameHandler(SongHandler):
             newparams[paramData.get("name", str(i))] = value
         return newparams
             
-    def importChart(self, chart:Chart, metaData:dict, chartData:dict):
-        #Other
-        chart.bpm = metaData["bpm"]
-        chart.songName = metaData["displayName"]
-        chart.stage = chartData["stage"]
-        chart.scrollSpeed = chartData["scrollSpeed"]
-        chart.setMeta("version", chartData.get("chartVersion"))
+    def importEvents(self, events:list[dict])-> list[ChartEvent]:
+        parseEvents = []
         #Events
-        for event in chartData["events"]:
+        for event in events:
             name = event["name"]
             params = event["params"]
             newparams = {}
@@ -159,7 +160,17 @@ class CodenameHandler(SongHandler):
 
             eventObj = ChartEvent(event["time"], name, newparams)
             eventObj.setMeta("codenameOriginalParams", params) #This will user for no lose data when reimporter
-            chart.events.append(eventObj)
+            parseEvents.append(eventObj)
+        return parseEvents
+    def importChart(self, chart:Chart, metaData:dict, chartData:dict):
+        #Other
+        chart.bpm = metaData["bpm"]
+        chart.songName = metaData["displayName"]
+        chart.stage = chartData["stage"]
+        chart.scrollSpeed = chartData["scrollSpeed"]
+        chart.setMeta("version", chartData.get("chartVersion"))
+        chart.events = self.importEvents(chartData.get("events", []))
+        
         voicesSuffix = []
 
         noteTypes = chartData.get("noteTypes", [])

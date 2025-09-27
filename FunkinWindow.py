@@ -3,7 +3,7 @@ from PySide6.QtGui import QAction
 from PySide6.QtCore import Qt, QDir
 from Constants import Engine
 from Funkin.ModFolder import ModFolder, PsychMod, CodenameMod, VsliceMod
-import UI, Dialogs, Widgets, Manager
+import UI, Dialogs, Widgets, Manager, Constants
 #V-Slice
 #Mod Folder Generator
 #Album Generator
@@ -29,6 +29,7 @@ class FunkinWindow(QMainWindow):
         self.ui = UI.Ui_MainWindow()
         self.ui.setupUi(self)
         self.childWindows = {}
+        self.setWindowTitle(f"Funkin Tools {Constants.VERSION}v")
         Manager.initManager(self)
 
         self.workspace = QMdiArea(self)
